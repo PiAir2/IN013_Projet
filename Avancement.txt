@@ -1,1 +1,2 @@
-Test
+Nous avons lu jusqu'à la fin de la partie 2.3 (algorithme de Karatsuba) de la référence que vous nous avez envoyé.
+Pour l'instant on ne comprend pas grand chose à l'algorithme de Karatsuba mais on va essayer de le relire plus tard.
