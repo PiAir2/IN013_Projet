@@ -70,25 +70,24 @@ def main():
 
 def test_temps():
     res_naif = []
-    for i in range(1000, 1001):
+    res_karatsuba = []
+    for i in range(100, 100000, 100):
         P = gen_poly_ent(i, 100)
         Q = gen_poly_ent(i, 100)
         debut = time.time()
         prod_poly_naif(P, Q)
         fin = time.time()
+        print("naif",i,fin-debut)
         res_naif.append(fin - debut)
-
-    res_karatsuba = []
-    for i in range(1000, 1001):
-        P = gen_poly_ent(i, 100)
-        Q = gen_poly_ent(i, 100)
         debut = time.time()
         prod_poly_karatsuba(P, Q)
         fin = time.time()
+        print("Kara",i,fin-debut)
         res_karatsuba.append(fin - debut)
 
     print(res_naif)
     print(res_karatsuba)
 
 
-main()
+# main()
+test_temps()
