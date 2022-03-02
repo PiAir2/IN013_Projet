@@ -1,6 +1,9 @@
+02/03/2022 :
+On a refait en C ce qu'on avait fait en Python.
+
+24/02/2022 :
+Nous avons fini l'algorithme de Karatsuba en Python.
+
 14/02/2022 :
 Nous avons lu jusqu'à la fin de la partie 2.3 (algorithme de Karatsuba) de la référence que vous nous avez envoyé.
 Pour l'instant on ne comprend pas grand chose à l'algorithme de Karatsuba mais on va essayer de le relire plus tard.
-
-24/02/2022 :
-Nous avons fini l'algorithme de Karatsuba.
