@@ -13,7 +13,7 @@ void afficher_poly(Poly P) {
 
 Poly gen_poly(int deg) {
     Poly P;
-    (P.coeffs) = (long *) malloc(sizeof(long)*(deg+1));
+    P.coeffs = (long *) malloc(sizeof(long)*(deg+1));
     P.deg = deg;
     for (int i = 0; i <= deg; i++) {
         (P.coeffs)[i] = rand() % NB_P;
@@ -32,7 +32,7 @@ int compare_poly(Poly P, Poly Q) {
     int k = 0;
     for (int i = 0; i <= P.deg; i++) {
         if ((P.coeffs)[i] != (Q.coeffs)[i]) {
-            printf("PROBLEME : %ld %ld %d\n", (P.coeffs)[i], (Q.coeffs)[i], i);
+            printf("Problème : C1 = %ld, C2 = %ld, pow = %d\n", (P.coeffs)[i], (Q.coeffs)[i], i);
             k = 1;
         }
     }
@@ -44,7 +44,7 @@ int compare_poly(Poly P, Poly Q) {
 
 Poly prod_poly_naif(Poly P, Poly Q) {
     Poly R;
-    (R.coeffs) = (long *) malloc(sizeof(long)*(P.deg + Q.deg + 1));
+    R.coeffs = (long *) malloc(sizeof(long)*(P.deg + Q.deg + 1));
     R.deg = P.deg + Q.deg;
     for (int i = 0; i <= P.deg; i++) {
         for (int j = 0; j <= Q.deg; j++) {
@@ -56,7 +56,7 @@ Poly prod_poly_naif(Poly P, Poly Q) {
 
 Poly copy_poly(Poly P, int deb, int fin) {
     Poly R;
-    (R.coeffs) = (long *) malloc(sizeof(long)*(fin - deb + 1));
+    R.coeffs = (long *) malloc(sizeof(long)*(fin - deb + 1));
     R.deg = fin - deb;
     for (int i = deb; i <= fin; i++) {
         (R.coeffs)[i-deb] = (P.coeffs)[i];
@@ -81,7 +81,7 @@ Poly oppose_poly(Poly P) {
 }
 
 Poly prod_poly_karatsuba(Poly P, Poly Q) {
-    if (P.deg <= 200) {
+    if (P.deg <= 130) {
         return prod_poly_naif(P, Q);
     }
     int k = (int) ceil((P.deg+1) / 2.0);
@@ -95,10 +95,40 @@ Poly prod_poly_karatsuba(Poly P, Poly Q) {
 
     Poly R;
     R.deg = P.deg + Q.deg;
-    (R.coeffs) = (long *) calloc(sizeof(long), R.deg + 1);
+    R.coeffs = (long *) calloc(sizeof(long), R.deg + 1);
 
     R = somme_poly(R, E1, 0);
     R = somme_poly(R, E2, 2*((int) ((P.deg+2)/2.0)));
     R = somme_poly(R, somme_poly(E3, oppose_poly(somme_poly(E1, E2, 0)), 0), k);
+    
     return R;
+}
+
+long modpow(long x, unsigned long n) {
+    if (n == 1) {
+        return x;
+    }
+    long res;
+    if (n % 2 == 0) {
+        res = modpow(x, n/2);
+        return (res*res) % NB_P;
+    }
+    res = modpow(x, n-1);
+    return (res*x) % NB_P;
+}
+
+long calc_P(Poly P, long x) {
+    long res = 0;
+    for (int i = 0; i <= P.deg; i++) {
+        res += ((P.coeffs)[i]*modpow(x, i)) % NB_P;
+    }
+    return res;
+}
+
+long *get_w_i(Poly P, Poly Q, long racine) {
+    long *w_i = (long *) malloc(sizeof(long) * (2*P.deg+1));
+    for (int i = 0; i < 2*P.deg+1; i++) {
+        w_i[i] = (calc_P(P, racine)*calc_P(Q, racine)) % NB_P;
+    }
+    return w_i;
 }

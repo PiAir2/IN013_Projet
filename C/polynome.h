@@ -1,7 +1,7 @@
 #ifndef POLYNOME_H
 #define POLYNOME_H
 
-#define NB_P 1283
+#define NB_P 2013265921
 
 typedef struct _Poly {
     long *coeffs;
@@ -17,5 +17,6 @@ Poly copy_poly(Poly P, int deb, int fin);
 Poly poly_somme(Poly P, Poly Q, int deb);
 Poly oppose_poly(Poly P);
 Poly prod_poly_karatsuba(Poly P, Poly Q);
+long modpow(long x, unsigned long n);
 
 #endif
