@@ -11,6 +11,13 @@ void afficher_poly(Poly P) {
     printf("\n");
 }
 
+Poly creer_poly(int deg) {
+    Poly P;
+    P.deg = deg;
+    P.coeffs = (long *) malloc(sizeof(long)*(deg+1));
+    return P;
+}
+
 Poly gen_poly(int deg) {
     Poly P;
     P.coeffs = (long *) malloc(sizeof(long)*(deg+1));
@@ -29,15 +36,11 @@ int compare_poly(Poly P, Poly Q) {
     if (!(P.deg == Q.deg)) {
         return 0;
     }
-    int k = 0;
     for (int i = 0; i <= P.deg; i++) {
         if ((P.coeffs)[i] != (Q.coeffs)[i]) {
-            printf("Problème : C1 = %ld, C2 = %ld, pow = %d\n", (P.coeffs)[i], (Q.coeffs)[i], i);
-            k = 1;
+            printf("Problème : C1 = %ld, C2 = %ld, pow = x^%d\n", (P.coeffs)[i], (Q.coeffs)[i], i);
+            return 0;
         }
-    }
-    if (k == 1) {
-        return 0;
     }
     return 1;
 }
@@ -67,7 +70,7 @@ Poly copy_poly(Poly P, int deb, int fin) {
 Poly somme_poly(Poly P, Poly Q, int deb) {
     Poly R = copy_poly(P, 0, P.deg);
     for (int i = 0; i <= Q.deg; i++) {
-        (R.coeffs)[deb + i] = ((((R.coeffs)[deb + i] + (Q.coeffs)[i])%NB_P) + NB_P)%NB_P;
+        (R.coeffs)[deb + i] = ((R.coeffs)[deb + i] + (Q.coeffs)[i]) % NB_P;
     }
     return R;
 }
@@ -75,7 +78,7 @@ Poly somme_poly(Poly P, Poly Q, int deb) {
 Poly oppose_poly(Poly P) {
     Poly R = copy_poly(P, 0, P.deg);
     for (int i = 0; i <= R.deg; i++) {
-        (R.coeffs)[i] *= -1;
+        (R.coeffs)[i] = -(R.coeffs)[i] + NB_P;
     }
     return R;
 }
@@ -104,7 +107,10 @@ Poly prod_poly_karatsuba(Poly P, Poly Q) {
     return R;
 }
 
-long modpow(long x, unsigned long n) {
+long modpow(long x, long n) {
+    if (n == 0) {
+        return 1;
+    }
     if (n == 1) {
         return x;
     }
@@ -117,18 +123,45 @@ long modpow(long x, unsigned long n) {
     return (res*x) % NB_P;
 }
 
-long calc_P(Poly P, long x) {
-    long res = 0;
-    for (int i = 0; i <= P.deg; i++) {
-        res += ((P.coeffs)[i]*modpow(x, i)) % NB_P;
+long horner(Poly P, long x) {
+    long res = (P.coeffs)[P.deg];
+    for (int i = P.deg-1; i >= 0; i--) {
+        res = (res*x + (P.coeffs)[i]) % NB_P;
     }
     return res;
 }
 
-long *get_w_i(Poly P, Poly Q, long racine) {
-    long *w_i = (long *) malloc(sizeof(long) * (2*P.deg+1));
-    for (int i = 0; i < 2*P.deg+1; i++) {
-        w_i[i] = (calc_P(P, racine)*calc_P(Q, racine)) % NB_P;
+long *get_racines(long racine, int n) {
+    long *racines = (long *) malloc(sizeof(long) * n);
+    racines[0] = 1;
+    for (int i = 1; i < n; i++) {
+        racines[i] = racines[i-1]*racine;
     }
-    return w_i;
+    return racines;
+}
+
+long *eval_P(Poly P, long *racines) {
+    if (P.deg == 0) {
+        long *tmp = (long *) malloc(sizeof(long));
+        tmp[0] = (P.coeffs)[0];
+        return tmp;
+    }
+    int k = (P.deg + 1)/2;
+    Poly R0 = creer_poly(k-1);
+    Poly R1 = creer_poly(k-1);
+    
+    long *racines_bis = (long *) malloc(sizeof(long) * k);
+    for (int i = 0; i < k; i++) {
+        (R0.coeffs)[i] = ((P.coeffs)[i] + (P.coeffs)[i + k]) % NB_P;
+        (R1.coeffs)[i] = (((P.coeffs)[i] + (P.coeffs)[i + k]) * racines[i]) % NB_P;
+        racines_bis[i] = racines[2*i];
+    }
+    long *r0 = eval_P(R0, racines_bis);
+    long *r1 = eval_P(R1, racines_bis);
+    long *res = (long *) malloc(sizeof(long) * 2*k);
+    for (int i = 0; i < k; i++) {
+        res[2*i] = r0[i];
+        res[2*i+1] = r1[i];
+    }
+    return res;
 }

@@ -17,6 +17,9 @@ Poly copy_poly(Poly P, int deb, int fin);
 Poly poly_somme(Poly P, Poly Q, int deb);
 Poly oppose_poly(Poly P);
 Poly prod_poly_karatsuba(Poly P, Poly Q);
-long modpow(long x, unsigned long n);
+long modpow(long x, long n);
+long horner(Poly P, long x);
+long *get_racines(long racine, int n);
+long *eval_P(Poly P, long *racines);
 
 #endif
