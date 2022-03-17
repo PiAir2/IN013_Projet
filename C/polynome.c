@@ -136,6 +136,7 @@ long *get_racines(long racine, int n) {
     racines[0] = 1;
     for (int i = 1; i < n; i++) {
         racines[i] = racines[i-1]*racine;
+				// FIXME : calcul modulo nombre premier
     }
     return racines;
 }
@@ -154,6 +155,7 @@ long *eval_P(Poly P, long *racines) {
     for (int i = 0; i < k; i++) {
         (R0.coeffs)[i] = ((P.coeffs)[i] + (P.coeffs)[i + k]) % NB_P;
         (R1.coeffs)[i] = (((P.coeffs)[i] + (P.coeffs)[i + k]) * racines[i]) % NB_P;
+				// FIXME sur cette derniere ligne, ce serait une soustraction plutot que addition
         racines_bis[i] = racines[2*i];
     }
     long *r0 = eval_P(R0, racines_bis);
