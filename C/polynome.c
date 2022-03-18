@@ -129,10 +129,6 @@ long mod_pow(long x, long n) {
     return (res*x) % NB_P;
 }
 
-long get_racine(long racine, long ordre_racine, int deg) {
-    return mod_pow(racine, ordre_racine/deg);
-}
-
 long *get_racines(long racine, int n) {
     long *racines = (long *) malloc(sizeof(long) * n);
     racines[0] = 1;
@@ -167,7 +163,7 @@ long inv(long a, long p) {
     return 0;
 }
 
-long *eval(Poly P, long *racines) {
+long *eval(Poly P, long *racines) { //P.deg = 2^k - 1
     if (P.deg == 0) {
         long *tmp = (long *) malloc(sizeof(long));
         tmp[0] = (P.coeffs)[0];

@@ -19,7 +19,6 @@ Poly oppose_poly(Poly P);
 Poly prod_poly_karatsuba(Poly P, Poly Q);
 long mod_pow(long x, long n);
 long horner(Poly P, long x);
-long get_racine(long racine, long ordre_racine, int deg);
 long *get_racines(long racine, int n);
 long *eval(Poly P, long *racines);
 long mod_add(long a, long b, long p);
