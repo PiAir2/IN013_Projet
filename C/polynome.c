@@ -135,13 +135,30 @@ long *get_racines(long racine, int n) {
     long *racines = (long *) malloc(sizeof(long) * n);
     racines[0] = 1;
     for (int i = 1; i < n; i++) {
-        racines[i] = racines[i-1]*racine;
-				// FIXME : calcul modulo nombre premier
+        racines[i] = mult(racines[i-1], racine, NB_P);
     }
     return racines;
 }
 
+long add(long a, long b, long p) {
+    return (a+b) % p;
+}
+
+long sub(long a, long b, long p) {
+    return (a-b + p) % p;
+}
+
+long mult(long a, long b, long p) {
+    return (a*b) % p;
+}
+
+long inv(long a, long p) {
+    //TODO
+    return 0;
+}
+
 long *eval_P(Poly P, long *racines) {
+    //printf("----c = %d\n", c);
     if (P.deg == 0) {
         long *tmp = (long *) malloc(sizeof(long));
         tmp[0] = (P.coeffs)[0];
@@ -153,10 +170,10 @@ long *eval_P(Poly P, long *racines) {
     
     long *racines_bis = (long *) malloc(sizeof(long) * k);
     for (int i = 0; i < k; i++) {
-        (R0.coeffs)[i] = ((P.coeffs)[i] + (P.coeffs)[i + k]) % NB_P;
-        (R1.coeffs)[i] = (((P.coeffs)[i] + (P.coeffs)[i + k]) * racines[i]) % NB_P;
-				// FIXME sur cette derniere ligne, ce serait une soustraction plutot que addition
+        (R0.coeffs)[i] = add((P.coeffs)[i], (P.coeffs)[i+k], NB_P);
+        (R1.coeffs)[i] = mult(sub((P.coeffs)[i], (P.coeffs)[i+k], NB_P), racines[i], NB_P);
         racines_bis[i] = racines[2*i];
+        printf("i = %d, %ld\n", i, racines_bis[i]);
     }
     long *r0 = eval_P(R0, racines_bis);
     long *r1 = eval_P(R1, racines_bis);

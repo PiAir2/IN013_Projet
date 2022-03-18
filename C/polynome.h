@@ -21,5 +21,9 @@ long modpow(long x, long n);
 long horner(Poly P, long x);
 long *get_racines(long racine, int n);
 long *eval_P(Poly P, long *racines);
+long add(long a, long b, long p);
+long sub(long a, long b, long p);
+long mult(long a, long b, long p);
+long inv(long a, long p);
 
 #endif

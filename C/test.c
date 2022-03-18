@@ -43,7 +43,8 @@ void compare_naif_karatsuba() {
 }
 
 int main() {
-    srand(time(NULL));
+    srand(0);
+    //srand(time(NULL));
 
     //compare_naif_karatsuba();
 
@@ -55,17 +56,18 @@ int main() {
     printf("%ld\n", horner(P, 3));
     */
 
-    Poly P = gen_poly(256);
-    afficher_poly(P);
+    Poly P = gen_poly(63);
+    //afficher_poly(P);
     long racine = 2;
-    long *res = eval_P(P, get_racines(racine, P.deg));
-    for (int i = 0; i < 1; i++) {
-        printf("%ld | ", res[i]);
+    long *tab_rac = get_racines(racine, P.deg+1);
+    /*
+    for (int i = 0; i < 64; i++) {
+        printf("racine %d, %ld\n", i, tab_rac[i]);
+    }*/
+    long *res = eval_P(P, tab_rac);
+    for (int i = 0; i < 63; i++) {
+        printf("eval : %ld | horner : %ld\n", res[i], horner(P, tab_rac[i]));
     }
-    printf("\n\n");
-    
-    printf("%ld\n", horner(P, 1));
-
     printf("\n");
 
     return 0;
