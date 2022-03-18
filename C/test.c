@@ -42,7 +42,7 @@ void compare_naif_karatsuba() {
     liberer_poly(R2);
 }
 
-void test_eval(int deg, long racine) { // deg = 2^k - 1
+void test_eval(int deg, long racine) {
     Poly P = gen_poly(deg);
 
     temps_initial = clock();
@@ -66,8 +66,7 @@ int main() {
     //compare_naif_karatsuba();
 
     int deg = 65535;
-    printf("%ld\n", get_racine(racine, ordre_racine, deg+1));
-    test_eval(deg, get_racine(racine, ordre_racine, deg+1));
+    test_eval(deg, mod_pow(racine, ordre_racine/(deg+1)));
     
     printf("\n");
     return 0;
