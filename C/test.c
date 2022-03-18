@@ -22,19 +22,19 @@ Poly test_karatsuba(Poly P, Poly Q, int deg) {
     Poly R = prod_poly_karatsuba(P, Q);
     temps_final = clock();
     temps_cpu = ((double) (temps_final - temps_initial)) / CLOCKS_PER_SEC;
-    printf("Degré = %d Karatsuba : %f\n", deg,  temps_cpu);
+    printf("Degré = %d Karatsuba : %f\n", deg, temps_cpu);
     return R;
 }
 
 void compare_naif_karatsuba() {
     Poly P, Q, R1, R2;
-    for (int i = 32; i < 60000; i += 1000) {
+    for (int i = 32; i < 100000; i *= 2) {
         P = gen_poly(i);
         Q = gen_poly(i);
 
         R1 = test_naif(P, Q, i);
         R2 = test_karatsuba(P, Q, i);
-        assert(compare_poly(R1, R2));
+        //assert(compare_poly(R1, R2)); //test validité
     }
     liberer_poly(P);
     liberer_poly(Q);
@@ -42,33 +42,33 @@ void compare_naif_karatsuba() {
     liberer_poly(R2);
 }
 
+void test_eval(int deg, long racine) { // deg = 2^k - 1
+    Poly P = gen_poly(deg);
+
+    temps_initial = clock();
+    long *racines = get_racines(racine, P.deg+1);
+    long *res = eval(P, racines);
+    temps_final = clock();
+    temps_cpu = ((double) (temps_final - temps_initial)) / CLOCKS_PER_SEC;
+    printf("Degré = %d : %f\n", P.deg, temps_cpu);
+
+    //for (int i = 0; i < P.deg+1; i++) assert(res[i] == horner(P, racines[i])); //test de validité
+
+    liberer_poly(P);
+}
+
 int main() {
-    srand(0);
-    //srand(time(NULL));
+    srand(time(NULL));
+
+    long racine = 2;
+    long ordre_racine = (NB_P-1)/2;
 
     //compare_naif_karatsuba();
 
-    //printf("%ld\n", modpow(2, (long) 2013265920/4));
-
-    /*
-    Poly P = gen_poly(3);
-    afficher_poly(P);
-    printf("%ld\n", horner(P, 3));
-    */
-
-    Poly P = gen_poly(63);
-    //afficher_poly(P);
-    long racine = 2;
-    long *tab_rac = get_racines(racine, P.deg+1);
-    /*
-    for (int i = 0; i < 64; i++) {
-        printf("racine %d, %ld\n", i, tab_rac[i]);
-    }*/
-    long *res = eval_P(P, tab_rac);
-    for (int i = 0; i < 63; i++) {
-        printf("eval : %ld | horner : %ld\n", res[i], horner(P, tab_rac[i]));
-    }
+    int deg = 65535;
+    printf("%ld\n", get_racine(racine, ordre_racine, deg+1));
+    test_eval(deg, get_racine(racine, ordre_racine, deg+1));
+    
     printf("\n");
-
     return 0;
 }
