@@ -65,7 +65,7 @@ int main() {
 
     //compare_naif_karatsuba();
 
-    int deg = 65535;
+    int deg = 16777216;
     test_eval(deg, mod_pow(racine, ordre_racine/(deg+1)));
     
     printf("\n");

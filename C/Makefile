@@ -1,20 +1,27 @@
+# commenter/decommenter la bonne ligne pour activer/desactiver le profiler
+PROFILER=-pg
+#PROFILER=
+
+CFLAGS=-Wall -O2 -c $(PROFILER)
+
+LDFLAGS=-lm $(PROFILER)
+
 all : main test
 
 main : polynome.o main.o
-	gcc polynome.o main.o -lm -Wall -o main
+	gcc polynome.o main.o $(LDFLAGS) -o main
 
 test : polynome.o test.o
-	gcc polynome.o test.o -lm -Wall -o test
-
+	gcc polynome.o test.o $(LDFLAGS) -o test
 
 polynome.o : polynome.h polynome.c
-	gcc -c polynome.c
+	gcc $(CFLAGS) polynome.c
 
 main.o : main.c polynome.h
-	gcc -c main.c
+	gcc $(CFLAGS) main.c
 
 test.o : test.c polynome.h
-	gcc -c test.c
+	gcc $(CFLAGS) test.c
 
 clean : 
 	rm -f *.o
