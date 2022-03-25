@@ -143,7 +143,7 @@ long mod_add(long a, long b, long p) {
     if (res < p) {
         return res;
     }
-    return res%p;
+    return res - p;
 }
 
 long mod_sub(long a, long b, long p) {
@@ -172,11 +172,15 @@ long *eval(Poly P, long *racines) { //P.deg = 2^k - 1
     int k = (P.deg + 1)/2;
     Poly R0 = creer_poly(k-1);
     Poly R1 = creer_poly(k-1);
+
+		// TODO plus tard: reessayer sans tmp
+		long tmp;
     
     long *racines_bis = (long *) malloc(sizeof(long) * k);
     for (int i = 0; i < k; i++) {
         (R0.coeffs)[i] = mod_add((P.coeffs)[i], (P.coeffs)[i+k], NB_P);
-        (R1.coeffs)[i] = mod_mult(mod_sub((P.coeffs)[i], (P.coeffs)[i+k], NB_P), racines[i], NB_P);
+				tmp = mod_sub((P.coeffs)[i], (P.coeffs)[i+k], NB_P);
+        (R1.coeffs)[i] = mod_mult(tmp, racines[i], NB_P);
         racines_bis[i] = racines[2*i];
     }
     long *r0 = eval(R0, racines_bis);
