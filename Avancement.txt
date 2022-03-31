@@ -1,9 +1,44 @@
-02/03/2022 :
-On a refait en C ce qu'on avait fait en Python.
+14/02/2022 :
+Lecture du polycopié sur l'efficacité des algorithmes en calcul formel -> jusqu'a karatsuba
+
 
 24/02/2022 :
-Nous avons fini l'algorithme de Karatsuba en Python.
+Nous avons codé l'algorithme de Karatsuba en Python avec d'autres fonctions utilitaires (citées ci-dessous)
 
-14/02/2022 :
-Nous avons lu jusqu'à la fin de la partie 2.3 (algorithme de Karatsuba) de la référence que vous nous avez envoyé.
-Pour l'instant on ne comprend pas grand chose à l'algorithme de Karatsuba mais on va essayer de le relire plus tard.
+
+02/03/2022 :
+On a refait en C ce qu'on avait fait en Python.
+C'est a dire : 
+- création des fonctions utilitaires pour afficher/générer/libérer/comparer/copier des polynomes
+- création de fonction d'opérations sur les polynomes : somme/opposé/produit
+- reproduction de l'algorithme de produit de polynomes naif
+- reproduction de l'algorithme de produit de polynomes de karatsuba
+- création d'un main afin de vérifier nos fonctions en effectuant plusieurs tests
+
+
+11/03/2022 :
+Modifications esthétiques sur nos fonctions
+Début de l'algorithme FFT : 
+- selection du nombre premier 2013265921 (cela permet entre autre de renvoyer les resultat au modulo ce nombre pour toutes nos fonctions)
+- création de modpow() pour calculer un entier à un puissance naif
+- création de calc_P() pour évaluer un polynome en une valeur
+- création de get_w_i() pour évaluer le produit de deux polynomes en une valeur ????????????????????? A VERIFIER
+Optimisation et réorganisation du jeu de test pour ne pas perdre de temps
+
+
+15/03/2022 :
+Optimisation de nos fonctions déjà créées
+- création de creer_poly() pour allouer un polynome
+- création de horner() afin de calculer plus rapidement l'évaluation d'un polynome en un valeur
+// dans calc_poly on calculait en partant du début jusqu'à la fin en utilisant modpow pour chaque rang ce qui prend beaucoup de temps
+// maintenant on commence par la fin et on descend en multipliant à chaques tour de boucle par notre valeur 
+// afin de ne plus avoir à utiliser modpow -> BEAUCOUP MIEUX
++ suppression de calc_poly maintenant inutile
+- suppression de la et get_w_i car ????????????
+- création de get_racines() qui renvoi les n premieres puissance d'un entier
+- création de eval_P() qui permet ?????????????
+Nouveau jeu de test pour tester nos fonctions
+
+
+17/03/2022 :
+
