@@ -4,21 +4,21 @@
 #include "polynome.h"
 
 void afficher_poly(Poly P) {
-    printf("%ld", (P.coeffs)[0]);
+    printf("%d", (P.coeffs)[0]);
     for (int i = 1; i <= P.deg; i++) {
-        printf(" + %ldx^%d", (P.coeffs)[i], i);
+        printf(" + %dx^%d", (P.coeffs)[i], i);
     }
     printf("\n");
 }
 
-Poly creer_poly(int deg) {
+Poly creer_poly(unsigned int deg) {
     Poly P;
     P.deg = deg;
-    P.coeffs = (long *) malloc(sizeof(long)*(deg+1));
+    P.coeffs = (unsigned int *) malloc(sizeof(unsigned int)*(deg+1));
     return P;
 }
 
-Poly gen_poly(int deg) {
+Poly gen_poly(unsigned int deg) {
     Poly P = creer_poly(deg);
     for (int i = 0; i <= deg; i++) {
         (P.coeffs)[i] = rand() % NB_P;
@@ -26,7 +26,7 @@ Poly gen_poly(int deg) {
     return P;
 }
 
-Poly liberer_poly(Poly P) {
+Poly liberer_poly(Poly P) { // CE SERAIT PAS VOID PLUTOT ???
     free(P.coeffs);
 }
 
@@ -36,7 +36,7 @@ int compare_poly(Poly P, Poly Q) {
     }
     for (int i = 0; i <= P.deg; i++) {
         if ((P.coeffs)[i] != (Q.coeffs)[i]) {
-            printf("Problème : C1 = %ld, C2 = %ld, pow = x^%d\n", (P.coeffs)[i], (Q.coeffs)[i], i);
+            printf("Problème : C1 = %d, C2 = %d, pow = x^%d\n", (P.coeffs)[i], (Q.coeffs)[i], i);
             return 0;
         }
     }
@@ -45,7 +45,7 @@ int compare_poly(Poly P, Poly Q) {
 
 Poly prod_poly_naif(Poly P, Poly Q) {
     Poly R;
-    R.coeffs = (long *) malloc(sizeof(long)*(P.deg + Q.deg + 1));
+    R.coeffs = (unsigned int *) malloc(sizeof(unsigned int)*(P.deg + Q.deg + 1));
     R.deg = P.deg + Q.deg;
     for (int i = 0; i <= P.deg; i++) {
         for (int j = 0; j <= Q.deg; j++) {
@@ -57,7 +57,7 @@ Poly prod_poly_naif(Poly P, Poly Q) {
 
 Poly copy_poly(Poly P, int deb, int fin) {
     Poly R;
-    R.coeffs = (long *) malloc(sizeof(long)*(fin - deb + 1));
+    R.coeffs = (unsigned int *) malloc(sizeof(unsigned int)*(fin - deb + 1));
     R.deg = fin - deb;
     for (int i = deb; i <= fin; i++) {
         (R.coeffs)[i-deb] = (P.coeffs)[i];
@@ -96,7 +96,7 @@ Poly prod_poly_karatsuba(Poly P, Poly Q) {
 
     Poly R;
     R.deg = P.deg + Q.deg;
-    R.coeffs = (long *) calloc(sizeof(long), R.deg + 1);
+    R.coeffs = (unsigned int *) calloc(sizeof(unsigned int), R.deg + 1);
 
     R = somme_poly(R, E1, 0);
     R = somme_poly(R, E2, 2*((int) ((P.deg+2)/2.0)));
@@ -105,22 +105,22 @@ Poly prod_poly_karatsuba(Poly P, Poly Q) {
     return R;
 }
 
-long horner(Poly P, long x) {
-    long res = (P.coeffs)[P.deg];
+unsigned int horner(Poly P, unsigned int x) {
+    unsigned int res = (P.coeffs)[P.deg];
     for (int i = P.deg-1; i >= 0; i--) {
         res = (res*x + (P.coeffs)[i]) % NB_P;
     }
     return res;
 }
 
-long mod_pow(long x, long n) {
+unsigned int mod_pow(unsigned int x, unsigned int n) {
     if (n == 0) {
         return 1;
     }
     if (n == 1) {
         return x;
     }
-    long res;
+    unsigned int res;
     if (n % 2 == 0) {
         res = mod_pow(x, n/2);
         return (res*res) % NB_P;
@@ -129,8 +129,8 @@ long mod_pow(long x, long n) {
     return (res*x) % NB_P;
 }
 
-long *get_racines(long racine, int n) {
-    long *racines = (long *) malloc(sizeof(long) * n);
+unsigned int *get_racines(unsigned int racine, int n) {
+    unsigned int *racines = (unsigned int *) malloc(sizeof(unsigned int) * n);
     racines[0] = 1;
     for (int i = 1; i < n; i++) {
         racines[i] = mod_mult(racines[i-1], racine, NB_P);
@@ -138,34 +138,34 @@ long *get_racines(long racine, int n) {
     return racines;
 }
 
-long mod_add(long a, long b, long p) {
-    long res = a + b;
+unsigned int mod_add(unsigned int a, unsigned int b, unsigned int p) {
+    unsigned int res = a + b;
     if (res < p) {
         return res;
     }
     return res - p;
 }
 
-long mod_sub(long a, long b, long p) {
-    long res = a - b;
+unsigned int mod_sub(unsigned int a, unsigned int b, unsigned int p) {
+    unsigned int res = a - b;
     if (res >= 0) {
         return res;
     }
     return res + p;
 }
 
-long mod_mult(long a, long b, long p) {
+unsigned int mod_mult(unsigned int a, unsigned int b, unsigned int p) { //////////////////////////////////////////
     return (a*b) % p;
 }
 
-long inv(long a, long p) {
+unsigned int inv(unsigned int a, unsigned int p) {  ///////////////////////////////////
     //TODO
     return 0;
 }
 
-long *eval(Poly P, long *racines) { //P.deg = 2^k - 1
+unsigned int *eval(Poly P, unsigned int *racines) { //P.deg = 2^k - 1
     if (P.deg == 0) {
-        long *tmp = (long *) malloc(sizeof(long));
+        unsigned int *tmp = (unsigned int *) malloc(sizeof(unsigned int));
         tmp[0] = (P.coeffs)[0];
         return tmp;
     }
@@ -174,18 +174,18 @@ long *eval(Poly P, long *racines) { //P.deg = 2^k - 1
     Poly R1 = creer_poly(k-1);
 
 		// TODO plus tard: reessayer sans tmp
-		long tmp;
+		unsigned int tmp;
     
-    long *racines_bis = (long *) malloc(sizeof(long) * k);
+    unsigned int *racines_bis = (unsigned int *) malloc(sizeof(unsigned int) * k);
     for (int i = 0; i < k; i++) {
         (R0.coeffs)[i] = mod_add((P.coeffs)[i], (P.coeffs)[i+k], NB_P);
 				tmp = mod_sub((P.coeffs)[i], (P.coeffs)[i+k], NB_P);
         (R1.coeffs)[i] = mod_mult(tmp, racines[i], NB_P);
         racines_bis[i] = racines[2*i];
     }
-    long *r0 = eval(R0, racines_bis);
-    long *r1 = eval(R1, racines_bis);
-    long *res = (long *) malloc(sizeof(long) * 2*k);
+    unsigned int *r0 = eval(R0, racines_bis);
+    unsigned int *r1 = eval(R1, racines_bis);
+    unsigned int *res = (unsigned int *) malloc(sizeof(unsigned int) * 2*k);
     for (int i = 0; i < k; i++) {
         res[2*i] = r0[i];
         res[2*i+1] = r1[i];
