@@ -34,11 +34,18 @@ Optimisation de nos fonctions déjà créées
 // maintenant on commence par la fin et on descend en multipliant à chaques tour de boucle par notre valeur 
 // afin de ne plus avoir à utiliser modpow -> BEAUCOUP MIEUX
 + suppression de calc_poly maintenant inutile
-- suppression de la et get_w_i car ????????????
+- suppression de get_w_i car inutile
 - création de get_racines() qui renvoi les n premieres puissance d'un entier
-- création de eval_P() qui permet ?????????????
+- commencement de la fonction d'évaluation d'un polynôme eval()
 Nouveau jeu de test pour tester nos fonctions
 
 
-17/03/2022 :
+18/03/2022 :
+correction des fonctions add() et sub() plus efficaces.
+ajout d'un test de temps pour la fonction eval()
 
+01/04/2022 :
+- changement des variables long en unsigned int, lorsqu'on faisait une multiplication
+entre deux unsigned int, il se pouvait qu'on dépasse le maximum des unsigned int
+-> cast en long pour les multiplications.
+- amélioration de la fonction eval() en enlevant les malloc() inutiles dans la fonctions.
