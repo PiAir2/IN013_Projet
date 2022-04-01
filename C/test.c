@@ -42,17 +42,20 @@ void compare_naif_karatsuba() {
     liberer_poly(R2);
 }
 
-void test_eval(int deg, long racine) {
+void test_eval(int deg, unsigned int racine) {
     Poly P = gen_poly(deg);
 
     temps_initial = clock();
-    long *racines = get_racines(racine, P.deg+1);
-    long *res = eval(P, racines);
+    unsigned int *racines = get_racines(racine, P.deg+1);
+    unsigned int *res = eval(P, racines);
     temps_final = clock();
     temps_cpu = ((double) (temps_final - temps_initial)) / CLOCKS_PER_SEC;
     printf("Degré = %d : %f\n", P.deg, temps_cpu);
 
-    //for (int i = 0; i < P.deg+1; i++) assert(res[i] == horner(P, racines[i])); //test de validité
+    for (int i = 0; i < P.deg+1; i++) {
+        printf("%d %d\n", res[i], horner(P, racines[i]));
+        //assert(res[i] == horner(P, racines[i]));
+    }
 
     liberer_poly(P);
 }
