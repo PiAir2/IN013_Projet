@@ -3,27 +3,30 @@
 
 #define NB_P 2013265921
 
+typedef unsigned int Uint;
+
 typedef struct _Poly {
-    unsigned int *coeffs;
-    int deg;
+    Uint *coeffs;
+    Uint deg;
 } Poly;
 
 void afficher_poly(Poly P);
-Poly gen_poly(unsigned int deg);
-Poly liberer_poly(Poly P);
+Poly gen_poly(Uint deg);
+void liberer_poly(Poly P);
 int compare_poly(Poly P, Poly Q);
 Poly prod_poly_naif(Poly P, Poly Q);
-Poly copy_poly(Poly P, int deb, int fin);
-Poly poly_somme(Poly P, Poly Q, int deb);
+Poly copy_poly(Poly P, Uint deb, Uint fin);
+Poly poly_somme(Poly P, Poly Q, Uint deb);
 Poly oppose_poly(Poly P);
 Poly prod_poly_karatsuba(Poly P, Poly Q);
-unsigned int mod_pow(unsigned int x, unsigned int n);
-unsigned int horner(Poly P, unsigned int x);
-unsigned int *get_racines(unsigned int racine, int n);
-unsigned int *eval(Poly P, unsigned int *racines);
-unsigned int mod_add(unsigned int a, unsigned int b, unsigned int p);
-unsigned int mod_sub(unsigned int a, unsigned int b, unsigned int p);
-unsigned int mod_mult(unsigned int a, unsigned int b, unsigned int p);
-unsigned int inv(unsigned int a, unsigned int p);
+Uint mod_pow(Uint x, Uint n);
+Uint horner(Poly P, Uint x);
+Uint *get_racines(Uint racine, Uint n);
+Uint mod_add(Uint a, Uint b, Uint p);
+Uint mod_sub(Uint a, Uint b, Uint p);
+Uint mod_mult(Uint a, Uint b, Uint p);
+Uint inv(Uint a, Uint p);
+//Uint *eval(Poly P, Uint *racines);
+Uint *eval(Uint *coeffs, Uint deg, Uint *tmp_coeffs, Uint *racines, Uint pas_rac);
 
 #endif
