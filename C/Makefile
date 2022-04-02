@@ -1,6 +1,6 @@
 # commenter/decommenter la bonne ligne pour activer/desactiver le profiler
-#PROFILER=-pg
-PROFILER=
+PROFILER=-pg
+#PROFILER=
 
 CFLAGS=-Wall -O2 -c $(PROFILER)
 

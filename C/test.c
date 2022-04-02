@@ -45,9 +45,9 @@ void compare_naif_karatsuba() {
 void test_eval(int deg, Uint racine) {
     Poly P = gen_poly(deg);
     Poly P_cpy = copy_poly(P, 0, P.deg);
-    temps_initial = clock();
     Uint *racines = get_racines(racine, P.deg+1);
     //Uint *res = eval(P, racines); ancien eval()
+    temps_initial = clock();
     Uint *tmp_coeffs = (Uint *) malloc(sizeof(Uint)*(deg+1));
     Uint *res = eval(P.coeffs, P.deg, tmp_coeffs, racines, 1);
     temps_final = clock();
@@ -55,10 +55,10 @@ void test_eval(int deg, Uint racine) {
     printf("Degré = %d : %f\n", P.deg, temps_cpu);
 
     
-    for (int i = 0; i < P.deg+1; i++) {
-        //printf("%d %d %d\n", res[i], horner(P_cpy, racines[i]), racines[i]);
-        assert(res[i] == horner(P_cpy, racines[i]));
-    }
+    //for (int i = 0; i < P.deg+1; i++) {
+    //    //printf("%d %d %d\n", res[i], horner(P_cpy, racines[i]), racines[i]);
+    //    assert(res[i] == horner(P_cpy, racines[i]));
+    //}
     //afficher_poly(P);
     
     liberer_poly(P);
@@ -73,6 +73,7 @@ int main() {
     //compare_naif_karatsuba();
 
     int deg = 16777215;
+    // int deg = 8191;
     test_eval(deg, mod_pow(racine, ordre_racine/(deg+1)));
     
     printf("\n");
