@@ -1,8 +1,8 @@
-#include "polynome.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
 #include <time.h>
+#include "polynome.h"
 
 clock_t temps_initial;
 clock_t temps_final;

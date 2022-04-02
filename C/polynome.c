@@ -26,7 +26,7 @@ Poly gen_poly(Uint deg) {
     return P;
 }
 
-void liberer_poly(Poly P) { // CE SERAIT PAS VOID PLUTOT ???
+void liberer_poly(Poly P) {
     free(P.coeffs);
 }
 
