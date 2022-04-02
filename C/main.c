@@ -1,21 +1,26 @@
-#include "polynome.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
 #include <time.h>
+#include <immintrin.h>
+#include "polynome.h"
+
+#define ARRAY_LENGTH 8
 
 int main() {
     srand(time(NULL));
-    Poly P = gen_poly(20);
-    Poly Q = gen_poly(20);
-    Poly R1 = prod_poly_naif(P, Q);
-    Poly R2 = prod_poly_karatsuba(P, Q);
 
-    assert(compare_poly(R1, R2));
+    __m256i first = _mm256_set_epi32(10, 20, 30, 40, 50, 60, 70, 80);
+    __m256i second = _mm256_set_epi32(5, 5, 5, 5, 5, 5, 5, 5);
+    __m256i result = _mm256_add_epi32(first, second);
 
-    liberer_poly(P);
-    liberer_poly(Q);
-    liberer_poly(R1);
-    liberer_poly(R2);
+    int *i = (int *) &result;
+    printf("int:\t\t%d, %d, %d, %d, %d, %d, %d, %d\n", i[0], i[1], i[2], i[3], i[4], i[5], i[6], i[7]);
+
+    printf("\n");
+
+    i = (int *) &first;
+    printf("int:\t\t%d, %d, %d, %d, %d, %d, %d, %d\n", i[0], i[1], i[2], i[3], i[4], i[5], i[6], i[7]);
+    
     return 0;
 }

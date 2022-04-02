@@ -18,7 +18,7 @@ polynome.o : polynome.h polynome.c
 	gcc $(CFLAGS) polynome.c
 
 main.o : main.c polynome.h
-	gcc $(CFLAGS) main.c
+	gcc -mavx2 $(CFLAGS) main.c
 
 test.o : test.c polynome.h
 	gcc $(CFLAGS) test.c
