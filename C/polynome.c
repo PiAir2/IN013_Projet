@@ -175,7 +175,6 @@ Uint *eval(Poly P, Uint *racines) { //P.deg = 2^k - 1
 
 	// TODO plus tard: reessayer sans tmp
 	Uint tmp;
-    
     Uint *racines_bis = (Uint *) malloc(sizeof(Uint) * k);
     for (int i = 0; i < k; i++) {
         (R0.coeffs)[i] = mod_add((P.coeffs)[i], (P.coeffs)[i+k], NB_P);
@@ -199,17 +198,16 @@ Uint *eval(Uint *coeffs, Uint deg, Uint *tmp_coeffs, Uint *racines, Uint pas_rac
 		return &coeffs[0];
     }
 
-		// Base case deg==1: correct but no timing improvement
-    //if (deg == 1) {
-		//		Uint tmp = mod_sub(coeffs[0],coeffs[1], NB_P);
-		//		coeffs[0] = mod_add(coeffs[0],coeffs[1], NB_P);
-		//		coeffs[1] = tmp;
-		//		return &coeffs[0];
-    //}
+	/* // Base case deg==1: correct but no timing improvement
+    if (deg == 1) {
+		Uint tmp = mod_sub(coeffs[0],coeffs[1], NB_P);
+		coeffs[0] = mod_add(coeffs[0],coeffs[1], NB_P);
+		coeffs[1] = tmp;
+		return &coeffs[0];
+    }*/
 
-		// Recursion
     Uint k = (deg + 1)/2;
-
+    
     Uint tmp;
     for (int i = 0; i < k; i++) {
         tmp_coeffs[i] = mod_add(coeffs[i], coeffs[i+k], NB_P);

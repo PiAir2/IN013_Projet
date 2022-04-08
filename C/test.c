@@ -34,7 +34,7 @@ void compare_naif_karatsuba() {
 
         R1 = test_naif(P, Q, i);
         R2 = test_karatsuba(P, Q, i);
-        //assert(compare_poly(R1, R2)); //test validité
+        //assert(compare_poly(R1, R2));
     }
     liberer_poly(P);
     liberer_poly(Q);
@@ -55,17 +55,17 @@ void test_eval(int deg, Uint racine) {
     printf("Degré = %d : %f\n", P.deg, temps_cpu);
 
     
-    for (int i = 0; i < P.deg+1; i++) {
-    //    //printf("%d %d %d\n", res[i], horner(P_cpy, racines[i]), racines[i]);
+    /*for (int i = 0; i < P.deg+1; i++) {
+        //printf("%d %d %d\n", res[i], horner(P_cpy, racines[i]), racines[i]);
         assert(res[i] == horner(P_cpy, racines[i]));
-    }
+    }*/
     //afficher_poly(P);
     
     liberer_poly(P);
 }
 
 int main() {
-    //srand(time(NULL));
+    srand(time(NULL));
 
     Uint racine = 2;
     Uint ordre_racine = (NB_P-1)/2;
@@ -73,7 +73,6 @@ int main() {
     //compare_naif_karatsuba();
 
     int deg = 16777215;
-    // int deg = 8191;
     test_eval(deg, mod_pow(racine, ordre_racine/(deg+1)));
     
     printf("\n");
