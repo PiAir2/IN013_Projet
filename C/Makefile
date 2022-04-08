@@ -25,5 +25,6 @@ test.o : test.c polynome.h
 
 clean : 
 	rm -f *.o
+	rm -f *.ps
 	rm -f main
 	rm -f test
