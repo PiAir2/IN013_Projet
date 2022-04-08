@@ -8,38 +8,45 @@ clock_t temps_initial;
 clock_t temps_final;
 double temps_cpu;
 
-Poly test_naif(Poly P, Poly Q, int deg) {
+Poly test_naif(Poly P, Poly Q, int deg, double *temps) {
     temps_initial = clock();
     Poly R = prod_poly_naif(P, Q);
     temps_final = clock();
     temps_cpu = ((double) (temps_final - temps_initial)) / CLOCKS_PER_SEC;
+    *temps = temps_cpu;
     printf("Degré = %d, Naif : %f\n", deg, temps_cpu);
     return R;
 }
 
-Poly test_karatsuba(Poly P, Poly Q, int deg) {
+Poly test_karatsuba(Poly P, Poly Q, int deg, double *temps) {
     temps_initial = clock();
     Poly R = prod_poly_karatsuba(P, Q);
     temps_final = clock();
     temps_cpu = ((double) (temps_final - temps_initial)) / CLOCKS_PER_SEC;
+    *temps = temps_cpu;
     printf("Degré = %d Karatsuba : %f\n", deg, temps_cpu);
     return R;
 }
 
 void compare_naif_karatsuba() {
+    FILE *f = fopen("./gnuplot/temps/temps_naif_kara.txt", "w");
     Poly P, Q, R1, R2;
+    double temps_naif, temps_karatsuba;
     for (int i = 32; i < 100000; i *= 2) {
         P = gen_poly(i);
         Q = gen_poly(i);
 
-        R1 = test_naif(P, Q, i);
-        R2 = test_karatsuba(P, Q, i);
+        R1 = test_naif(P, Q, i, &temps_naif);
+        R2 = test_karatsuba(P, Q, i, &temps_karatsuba);
+
+        fprintf(f, "%d %.10f %.10f\n", i, temps_naif, temps_karatsuba);
         //assert(compare_poly(R1, R2));
     }
     liberer_poly(P);
     liberer_poly(Q);
     liberer_poly(R1);
     liberer_poly(R2);
+    fclose(f);
 }
 
 void test_eval(int deg, Uint racine) {
@@ -70,10 +77,10 @@ int main() {
     Uint racine = 2;
     Uint ordre_racine = (NB_P-1)/2;
 
-    //compare_naif_karatsuba();
+    compare_naif_karatsuba();
 
     int deg = 16777215;
-    test_eval(deg, mod_pow(racine, ordre_racine/(deg+1)));
+    //test_eval(deg, mod_pow(racine, ordre_racine/(deg+1)));
     
     printf("\n");
     return 0;
