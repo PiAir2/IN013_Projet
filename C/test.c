@@ -55,10 +55,10 @@ void test_eval(int deg, Uint racine) {
     printf("Degré = %d : %f\n", P.deg, temps_cpu);
 
     
-    //for (int i = 0; i < P.deg+1; i++) {
+    for (int i = 0; i < P.deg+1; i++) {
     //    //printf("%d %d %d\n", res[i], horner(P_cpy, racines[i]), racines[i]);
-    //    assert(res[i] == horner(P_cpy, racines[i]));
-    //}
+        assert(res[i] == horner(P_cpy, racines[i]));
+    }
     //afficher_poly(P);
     
     liberer_poly(P);
