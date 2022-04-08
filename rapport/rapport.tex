@@ -1,7 +1,20 @@
 \documentclass[12pt, a4paper]{report}
+
 \usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
 \usepackage{graphicx}
+\usepackage{color}
+\usepackage{hyperref}
+
 \graphicspath{{graphs/}}
+\hypersetup{
+    colorlinks,
+    citecolor=black,
+    filecolor=black,
+    linkcolor=black,
+    urlcolor=black
+}
+
 \title{Implantations efficaces de calculs sur les polynômes à une variable : FFT}
 \author{}
 \date{7 Avril 2022}
@@ -13,23 +26,26 @@
 
 \chapter*{Introduction}
 \addcontentsline{toc}{chapter}{Introduction}
-intro
+Dans le cadre de l'UE LU2IN013, nous avons réalisé un projet sur l'optimisation de calculs sur les polynômes à une variable. Le but final de ce projet est la multiplication de deux polynômes le plus efficacement possible.\\
+Pour ce faire, nous nous intéressons à plusieurs type d'algorithmes pour la multiplication, notamment : l'algorithme naïf, de Karatsuba et FFT.\\
+Nous avons tout d'abord commencé avec Python mais nous avions besoin d'un langage bas niveau pour plus de rapidité d'où le fait qu'on a rapidement changé pour le langage C.\\
 
 
-\chapter{L'algorithme de Karatsuba}
-test
-\section{Partie 1}
+\chapter{Algorithme Naïf et de Karatsuba}
+\section{Implémentation}
+Pour commencer, nous avons réalisé un algorithme simple de multiplication (l'algorithme naïf) qui consiste à multiplier terme à terme chaque coefficients des polynômes. Par sa simplicité, cette algorithme nous permettait de vérifier les résultats de nos futurs algorithme plus performants.\\
+Après cela, grâce aux différents ouvrages 
+%mettre un aterix et mettre qq sources ?% 
+trouvés sur internet, nous avons implémenté l'algorithme de Karatsuba 
+\section{Comparaison - Naïf/Karatsuba}
 
-\section{Partie 2}
+\includegraphics[scale=1]{naif_kara}\\
 
 \chapter{Fast Fourier Transform (FFT)}
-\section{Partie 1}
-\subsection{Sous partie 1.1}
-\section{Partie 2}
-
-test
-image :\\
-\includegraphics[scale=1]{naif_kara}\\
+\section{Fonctionnement}
+\section{Évalution d'un polynôme en un point}
+\subsection{Implémentation}
+\subsection{Tests de temps}
 
 l'équation dans la phrase $e^{i\pi}+1 = 0$\\
 l'équation au milieu numerotée
