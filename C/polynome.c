@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <assert.h>
 #include "polynome.h"
 
 void afficher_poly(Poly P) {
@@ -154,7 +155,19 @@ Uint mod_sub(Uint a, Uint b, Uint p) {
 }
 
 Uint mod_mult(Uint a, Uint b, Uint p) {
-    return ((unsigned long) a*b) % p;
+    
+    printf("%d %d\n", a, b);
+    unsigned long x = (unsigned long) a*b;
+    unsigned long part_ent = (unsigned long) p * (unsigned int) ((double) x*(1.0/(double) p));
+    unsigned int res = (unsigned int) (x - part_ent);
+    if (x%p != res) {
+        printf("%ld %d\n", x, (unsigned int) ((double) x*(1.0/(double) p)));
+        printf("%d %ld %d %d %d\n", res, x%p, a, b, p);
+        assert(0);
+    }
+    printf("%d %ld %d %d %d\n", res, x%p, a, b, p);
+    return res;
+    //return ((unsigned long)a*b)%p;
 }
 
 Uint inv(Uint a, Uint p) {

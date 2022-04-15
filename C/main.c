@@ -13,12 +13,11 @@ double temps_cpu;
 //x % p = x - int(float(x)/float(p))*p
 //      = x - int(float(x)*(1/float(p)))*p
 
-//Problème : retourne parfois le résultat négatif du modulo pour certains éléments.
+//Problème : marche pour de petits nombre mais pas pour les grands -> PROBLEME DE SIGNED INT AU LIEU DE UNSIGNED INT ???
 void vect_add(Uint *res, Uint *tab1, Uint *tab2, Uint taille, Uint p) {
-                       //__mi256i *tab1, __mi256i *tab2 pour avoir à cast juste à l'appel, plus rapide ?
-
-    __m256 invP = _mm256_set1_ps(1.0f/p);
-    __m256i intP = _mm256_set1_epi32(p);
+    __m256 invP = _mm256_set1_ps(1.0f/p); // pour convertir en __m256
+    __m256i intP = _mm256_set1_epi32(p);  // pour convertir en entier __m256i
+    __m256 zerocinq = _mm256_set1_ps(0.5f);
 
     __m256i a, b, x, tmp;
     __m256 fx, fx_invP;
@@ -29,7 +28,9 @@ void vect_add(Uint *res, Uint *tab1, Uint *tab2, Uint taille, Uint p) {
         x = _mm256_add_epi32(a, b); // x = a + b
         fx = _mm256_cvtepi32_ps(x); // float(x)
         fx_invP = _mm256_mul_ps(fx, invP); // float(x)*(1/float(p))
-        int_fx_invP = _mm256_cvtps_epi32(fx_invP); // int(float(x)*(1/float(p)))
+        fx_invP = _mm256_floor_ps(fx_invP); // arrondi en dessous
+        //fx_invP = _mm256_sub_ps(fx_invP, zerocinq); // on enlève 0.5 à chaque coeff car le cast en int arrondi a l'entier le plus proche et on veut la partie inférieure
+        int_fx_invP = _mm256_cvtps_epi32(fx_invP); // int(float(x)*(1/float(p)))        
         int_fx_invP_p = _mm256_mullo_epi32(int_fx_invP, intP); // int(float(x)*(1/float(p)))*p
         tmp = _mm256_sub_epi32(x, int_fx_invP_p); // x - int(float(x)*(1/float(p)))*p = (a+b)%p
         _mm256_storeu_si256((__m256i *) &res[i], tmp);
@@ -52,6 +53,7 @@ void vect_add(Uint *res, Uint *tab1, Uint *tab2, Uint taille, Uint p) {
 void vect_sub(/*int*/ Uint *res, Uint *tab1, Uint *tab2, Uint taille, Uint p) {
     __m256 invP = _mm256_set1_ps(1.0f/p);
     __m256i intP = _mm256_set1_epi32(p);
+    __m256 zerocinq = _mm256_set1_ps(1.0f/2.0f);
 
     __m256i a, b, x, tmp;
     __m256 fx, fx_invP;
@@ -62,6 +64,7 @@ void vect_sub(/*int*/ Uint *res, Uint *tab1, Uint *tab2, Uint taille, Uint p) {
         x = _mm256_sub_epi32(a, b); // x = a - b
         fx = _mm256_cvtepi32_ps(x); // float(x)
         fx_invP = _mm256_mul_ps(fx, invP); // float(x)*(1/float(p))
+        fx_invP = _mm256_floor_ps(fx_invP); // arrondi en dessous
         int_fx_invP = _mm256_cvtps_epi32(fx_invP); // int(float(x)*(1/float(p)))
         int_fx_invP_p = _mm256_mullo_epi32(int_fx_invP, intP); // int(float(x)*(1/float(p)))*p
         tmp = _mm256_sub_epi32(x, int_fx_invP_p); // x - int(float(x)*(1/float(p)))*p = (a+b)%p
@@ -143,7 +146,7 @@ void test_add(Uint *res, Uint *resn, Uint *t1, Uint *t2, Uint taille, Uint p) {
 void test_sub(Uint *res, Uint *resn, Uint *t1, Uint *t2, Uint taille, Uint p) {
     temps_initial = clock();
     for (int i = 0; i < 10000000; i++) {
-        vect_sub(/*(int *)*/ res, t1, t2, taille, p);
+        vect_sub(res, t1, t2, taille, p);
     }
     temps_final = clock();
     temps_cpu = ((double) (temps_final - temps_initial)) / CLOCKS_PER_SEC;
@@ -181,14 +184,17 @@ void test_mult(Uint *res, Uint *resn, Uint *t1, Uint *t2, Uint taille) {
 int main() {
     srand(time(NULL));
 
-    int p = 23;
-    int taille = 16;
+    //int p = 23;
+    int coeff = 1073741824;
+    int taille = 8;
     Uint *t1 = (Uint *) malloc(sizeof(Uint)*taille);
     Uint *t2 = (Uint *) malloc(sizeof(Uint)*taille);
 
     for (int i = 0; i < taille; i++) {
-        t1[i] = rand()%p;
-        t2[i] = rand()%p;
+        //t1[i] = rand()%p;
+        //t2[i] = rand()%p;
+        t1[i] = coeff;
+        t2[i] = coeff;
     }
     printf("tab1 : ");
     for (int i = 0; i < taille; i++) {
