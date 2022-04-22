@@ -8,8 +8,8 @@ LDFLAGS=-lm $(PROFILER)
 
 all : main test
 
-main : polynome.o main.o
-	gcc polynome.o main.o $(LDFLAGS) -o main
+main : polynome.o main.o vect.o
+	gcc polynome.o vect.o main.o $(LDFLAGS) -o main
 
 test : polynome.o vect.o test.o
 	gcc polynome.o vect.o test.o $(LDFLAGS) -o test

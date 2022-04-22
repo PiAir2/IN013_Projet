@@ -225,9 +225,11 @@ Uint *eval(Uint *coeffs, Uint taille, Uint *tmp_coeffs, Uint *racines, Uint pas_
     if (k >= 8) {
         vect_add(tmp_coeffs, coeffs, &coeffs[k], k, NB_P);
         //vect_sub(tmp_sub, coeffs, &coeffs[k], k, NB_P);
+        //vect_add_sub(tmp_coeffs, tmp_sub, coeffs, &coeffs[k], k, NB_P);
         for (Uint i = 0; i < k; i++) {
             tmp = mod_sub(coeffs[i], coeffs[i+k], NB_P);
-            tmp_coeffs[i+k] = mod_mult(tmp_sub[i], racines[i*pas_rac], NB_P);
+            tmp_coeffs[i+k] = mod_mult(tmp, racines[i*pas_rac], NB_P);
+            //tmp_coeffs[i+k] = mod_mult(tmp_sub[i], racines[i*pas_rac], NB_P);
         }
     } else {
         for (Uint i = 0; i < k; i++) {

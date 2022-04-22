@@ -42,12 +42,25 @@ void vect_sub(Uint *res, Uint *tab1, Uint *tab2, Uint taille, Uint p) {
     }
 }
 
-void vect_add((Uint *res, Uint *tab1, Uint *tab2, Uint taille, Uint p) {
+void vect_add_sub(Uint *res1, Uint *res2, Uint *tab1, Uint *tab2, Uint taille, Uint p) {
     __m256i a, b, x;
     for (Uint i = 0; i < taille; i += 8) {
         a = _mm256_loadu_si256((__m256i *) &tab1[i]);
         b = _mm256_loadu_si256((__m256i *) &tab2[i]);
         x = _mm256_add_epi32(a, b); // x = a + b
-        
+        mod_x(res1, x, i, p);
+        x = _mm256_sub_epi32(a, b); // x = a - b
+        mod_x(res2, x, i, p);
     }
 }
+
+
+//void vect_add((Uint *res, Uint *tab1, Uint *tab2, Uint taille, Uint p) {
+//    __m256i a, b, x;
+//    for (Uint i = 0; i < taille; i += 8) {
+//        a = _mm256_loadu_si256((__m256i *) &tab1[i]);
+//        b = _mm256_loadu_si256((__m256i *) &tab2[i]);
+//        x = _mm256_add_epi32(a, b); // x = a + b
+//        
+//    }
+//}
