@@ -11,75 +11,43 @@ clock_t temps_final;
 double temps_cpu;
 
 //x % p = x - int(float(x)/float(p))*p
-//      = x - int(float(x)*(1/float(p)))*p
 
-//Problème : marche pour de petits nombre mais pas pour les grands -> PROBLEME DE SIGNED INT AU LIEU DE UNSIGNED INT ???
+__m256i mod_x(Uint *res, __m256i x, Uint i, Uint p) {
+    __m256 float_p = _mm256_set1_ps(p);
+    __m256i int_p = _mm256_set1_epi32(p);
+
+    __m256i tmp;
+    __m256 x_div_p, float_x;
+    __m256i int_x_div_p;
+    float_x = _mm256_cvtepi32_ps(x); // float(x)
+    x_div_p = _mm256_div_ps(float_x, float_p); // float(x)/float(p)
+    x_div_p = _mm256_floor_ps(x_div_p); // lower((float(x)/float(p)))
+    int_x_div_p = _mm256_cvtps_epi32(x_div_p); // int(float(x)/float(p))
+    tmp = _mm256_mullo_epi32(int_x_div_p, int_p); // int(float(x)/float(p))*p
+    tmp = _mm256_sub_epi32(x, tmp); // x - int(float(x)*(1/float(p)))*p = x%p
+    _mm256_storeu_si256((__m256i *) &res[i], tmp);
+
+    return tmp;
+}
+
 void vect_add(Uint *res, Uint *tab1, Uint *tab2, Uint taille, Uint p) {
-    __m256 invP = _mm256_set1_ps(1.0f/p); // pour convertir en __m256
-    __m256i intP = _mm256_set1_epi32(p);  // pour convertir en entier __m256i
-    __m256 zerocinq = _mm256_set1_ps(0.5f);
-
-    __m256i a, b, x, tmp;
-    __m256 fx, fx_invP;
-    __m256i int_fx_invP, int_fx_invP_p;
+    __m256i a, b, x;
     for (Uint i = 0; i < taille; i += 8) {
         a = _mm256_loadu_si256((__m256i *) &tab1[i]);
         b = _mm256_loadu_si256((__m256i *) &tab2[i]);
         x = _mm256_add_epi32(a, b); // x = a + b
-        fx = _mm256_cvtepi32_ps(x); // float(x)
-        fx_invP = _mm256_mul_ps(fx, invP); // float(x)*(1/float(p))
-        fx_invP = _mm256_floor_ps(fx_invP); // arrondi en dessous
-        //fx_invP = _mm256_sub_ps(fx_invP, zerocinq); // on enlève 0.5 à chaque coeff car le cast en int arrondi a l'entier le plus proche et on veut la partie inférieure
-        int_fx_invP = _mm256_cvtps_epi32(fx_invP); // int(float(x)*(1/float(p)))        
-        int_fx_invP_p = _mm256_mullo_epi32(int_fx_invP, intP); // int(float(x)*(1/float(p)))*p
-        tmp = _mm256_sub_epi32(x, int_fx_invP_p); // x - int(float(x)*(1/float(p)))*p = (a+b)%p
-        _mm256_storeu_si256((__m256i *) &res[i], tmp);
-
-        /* //première version : environ 35% plus rapide avec p = NB_P et taille = 80
-        a = _mm256_loadu_si256((__m256i *) &tab1[i]);
-        b = _mm256_loadu_si256((__m256i *) &tab2[i]);
-        tmp = _mm256_add_epi32(a, b);
-        _mm256_storeu_si256((__m256i *) &res[i], tmp);
-        for (Uint j = i; j < i+8; j++) { //Comment gérer les modulos efficacement ?
-            if (res[j] >= p) {
-                res[j] = res[j] - p;
-            }
-        }*/
+        x = mod_x(res, x, i, p);
     }
 }
 
-//Problème : marche seulement si tous les éléments de tab1 >= tous les éléments de tab2,
-//sinon retourne le résulat négatif du modulo quand tab1[i] < tab2[i]
-void vect_sub(/*int*/ Uint *res, Uint *tab1, Uint *tab2, Uint taille, Uint p) {
-    __m256 invP = _mm256_set1_ps(1.0f/p);
-    __m256i intP = _mm256_set1_epi32(p);
-    __m256 zerocinq = _mm256_set1_ps(1.0f/2.0f);
 
-    __m256i a, b, x, tmp;
-    __m256 fx, fx_invP;
-    __m256i int_fx_invP, int_fx_invP_p;
+void vect_sub(Uint *res, Uint *tab1, Uint *tab2, Uint taille, Uint p) {
+    __m256i a, b, x;
     for (Uint i = 0; i < taille; i += 8) {
         a = _mm256_loadu_si256((__m256i *) &tab1[i]);
         b = _mm256_loadu_si256((__m256i *) &tab2[i]);
         x = _mm256_sub_epi32(a, b); // x = a - b
-        fx = _mm256_cvtepi32_ps(x); // float(x)
-        fx_invP = _mm256_mul_ps(fx, invP); // float(x)*(1/float(p))
-        fx_invP = _mm256_floor_ps(fx_invP); // arrondi en dessous
-        int_fx_invP = _mm256_cvtps_epi32(fx_invP); // int(float(x)*(1/float(p)))
-        int_fx_invP_p = _mm256_mullo_epi32(int_fx_invP, intP); // int(float(x)*(1/float(p)))*p
-        tmp = _mm256_sub_epi32(x, int_fx_invP_p); // x - int(float(x)*(1/float(p)))*p = (a+b)%p
-        _mm256_storeu_si256((__m256i *) &res[i], tmp);
-
-        /* //première version : environ 40% plus rapide avec p = NB_P et taille = 80
-        a = _mm256_loadu_si256((__m256i *) &tab1[i]);
-        b = _mm256_loadu_si256((__m256i *) &tab2[i]);
-        tmp = _mm256_sub_epi32(a, b);
-        _mm256_storeu_si256((__m256i *) &res[i], tmp);
-        for (Uint j = i; j < i+8; j++) {
-            if (res[j] < 0) {
-                res[j] = res[j] + p;
-            }
-        }*/
+        mod_x(res, x, i, p);
     }
 }
 
@@ -184,19 +152,19 @@ void test_mult(Uint *res, Uint *resn, Uint *t1, Uint *t2, Uint taille) {
 int main() {
     srand(time(NULL));
 
-    //int p = 23;
-    int coeff = 1073741824;
-    int taille = 8;
+    int p = NB_P;
+    //int coeff = 1073741824;
+    int taille = 32;
     Uint *t1 = (Uint *) malloc(sizeof(Uint)*taille);
     Uint *t2 = (Uint *) malloc(sizeof(Uint)*taille);
 
     for (int i = 0; i < taille; i++) {
-        //t1[i] = rand()%p;
-        //t2[i] = rand()%p;
-        t1[i] = coeff;
-        t2[i] = coeff;
+        t1[i] = rand()%p;
+        t2[i] = rand()%p;
+        //t1[i] = coeff;
+        //t2[i] = coeff;
     }
-    printf("tab1 : ");
+    /*printf("tab1 : ");
     for (int i = 0; i < taille; i++) {
         printf("%d ", t1[i]);
     }
@@ -205,6 +173,7 @@ int main() {
         printf("%d ", t2[i]);
     }
     printf("\n\n");
+    */
 
     Uint *res = (Uint *) malloc(sizeof(Uint)*taille);
     Uint *resn = (Uint *) malloc(sizeof(Uint)*taille);

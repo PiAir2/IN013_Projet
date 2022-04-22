@@ -1,7 +1,8 @@
 #ifndef POLYNOME_H
 #define POLYNOME_H
 
-#define NB_P 2013265921
+//#define NB_P 2013265921 // racine = 2, ordre = (NB_P-1)/2
+#define NB_P 754974721 // racine = 11, ordre = NB_P-1
 
 typedef unsigned int Uint;
 
@@ -27,6 +28,6 @@ Uint mod_sub(Uint a, Uint b, Uint p);
 Uint mod_mult(Uint a, Uint b, Uint p);
 Uint inv(Uint a, Uint p);
 //Uint *eval(Poly P, Uint *racines);
-Uint *eval(Uint *coeffs, Uint deg, Uint *tmp_coeffs, Uint *racines, Uint pas_rac);
+Uint *eval(Uint *coeffs, Uint taille, Uint *tmp_coeffs, Uint *racines, Uint pas_rac, Uint *tmp_sub);
 
 #endif

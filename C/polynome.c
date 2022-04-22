@@ -3,6 +3,7 @@
 #include <math.h>
 #include <assert.h>
 #include "polynome.h"
+#include "vect.h"
 
 void afficher_poly(Poly P) {
     printf("%d", (P.coeffs)[0]);
@@ -155,8 +156,7 @@ Uint mod_sub(Uint a, Uint b, Uint p) {
 }
 
 Uint mod_mult(Uint a, Uint b, Uint p) {
-    
-    printf("%d %d\n", a, b);
+    /*printf("%d %d\n", a, b);
     unsigned long x = (unsigned long) a*b;
     unsigned long part_ent = (unsigned long) p * (unsigned int) ((double) x*(1.0/(double) p));
     unsigned int res = (unsigned int) (x - part_ent);
@@ -166,8 +166,8 @@ Uint mod_mult(Uint a, Uint b, Uint p) {
         assert(0);
     }
     printf("%d %ld %d %d %d\n", res, x%p, a, b, p);
-    return res;
-    //return ((unsigned long)a*b)%p;
+    return res;*/
+    return ((unsigned long) a*b) % p;
 }
 
 Uint inv(Uint a, Uint p) {
@@ -206,8 +206,8 @@ Uint *eval(Poly P, Uint *racines) { //P.deg = 2^k - 1
 }
 */
 
-Uint *eval(Uint *coeffs, Uint deg, Uint *tmp_coeffs, Uint *racines, Uint pas_rac) {
-    if (deg == 0) {
+Uint *eval(Uint *coeffs, Uint taille, Uint *tmp_coeffs, Uint *racines, Uint pas_rac, Uint *tmp_sub) {
+    if (taille == 1) {
 		return &coeffs[0];
     }
 
@@ -219,19 +219,33 @@ Uint *eval(Uint *coeffs, Uint deg, Uint *tmp_coeffs, Uint *racines, Uint pas_rac
 		return &coeffs[0];
     }*/
 
-    Uint k = (deg + 1)/2;
-    
     Uint tmp;
-    for (int i = 0; i < k; i++) {
-        tmp_coeffs[i] = mod_add(coeffs[i], coeffs[i+k], NB_P);
-        tmp = mod_sub(coeffs[i], coeffs[i+k], NB_P);
-        tmp_coeffs[i+k] = mod_mult(tmp, racines[i*pas_rac], NB_P);
+    Uint k = taille/2;
+    
+    if (k >= 8) {
+        vect_add(tmp_coeffs, coeffs, &coeffs[k], k, NB_P);
+        //vect_sub(tmp_sub, coeffs, &coeffs[k], k, NB_P);
+        for (Uint i = 0; i < k; i++) {
+            tmp = mod_sub(coeffs[i], coeffs[i+k], NB_P);
+            tmp_coeffs[i+k] = mod_mult(tmp_sub[i], racines[i*pas_rac], NB_P);
+        }
+    } else {
+        for (Uint i = 0; i < k; i++) {
+            tmp_coeffs[i] = mod_add(coeffs[i], coeffs[i+k], NB_P);
+            tmp = mod_sub(coeffs[i], coeffs[i+k], NB_P);
+            tmp_coeffs[i+k] = mod_mult(tmp, racines[i*pas_rac], NB_P);
+        }
     }
-    Uint *r0 = eval(tmp_coeffs, k-1, coeffs, racines, pas_rac*2);
-    Uint *r1 = eval(&tmp_coeffs[k], k-1, &coeffs[k], racines, pas_rac*2);
-    for (int i = 0; i < k; i++) {
-        coeffs[2*i] = r0[i];
-        coeffs[2*i+1] = r1[i];
+    
+
+    tmp = pas_rac*2;
+    Uint *r0 = eval(tmp_coeffs, k, coeffs, racines, tmp, tmp_sub);
+    Uint *r1 = eval(&tmp_coeffs[k], k, &coeffs[k], racines, tmp, tmp_sub);
+
+    for (Uint i = 0; i < k; i++) {
+        tmp = 2*i;
+        coeffs[tmp] = r0[i];
+        coeffs[tmp+1] = r1[i];
     }
     return coeffs;
 }

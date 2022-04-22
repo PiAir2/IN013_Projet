@@ -11,11 +11,14 @@ all : main test
 main : polynome.o main.o
 	gcc polynome.o main.o $(LDFLAGS) -o main
 
-test : polynome.o test.o
-	gcc polynome.o test.o $(LDFLAGS) -o test
+test : polynome.o vect.o test.o
+	gcc polynome.o vect.o test.o $(LDFLAGS) -o test
 
 polynome.o : polynome.h polynome.c
 	gcc $(CFLAGS) polynome.c
+
+vect.o : vect.h vect.c
+	gcc -mavx2 $(CFLAGS) vect.c
 
 main.o : main.c polynome.h
 	gcc -mavx2 $(CFLAGS) main.c
