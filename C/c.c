@@ -4,47 +4,86 @@
 #include <time.h>
 #include <immintrin.h>
 #include <limits.h>
-#include "polynome.h"
 
+#define NB_P 754974721
+typedef unsigned int Uint;
+// barrett algorithm with avx
 //gcc -Wall -mavx2 -o c c.c
-int main() {
-    //int i = 0;
-    //int p = 23;
 
-    //__m256 invP = _mm256_set1_ps(1.0f/p);
-    //__m256i intP = _mm256_set1_epi32(p);
+void vect_mult(Uint *res, Uint *tab1, Uint *tab2) {
+    int s = 0;
+    int t = 30;
+    int q = 1;
+    __m256i p = _mm256_set1_epi32(NB_P);
+    __m256i ql = _mm256_set1_epi32(q);
+    __m256i x = _mm256_loadu_si256((__m256i *) tab1);
+    __m256i y = _mm256_loadu_si256((__m256i *) tab2);
+    
+    __m256i al = _mm256_mul_epu32(x, y);
+    __m256i bl = _mm256_srli_epi64(al, s);
+    __m256i cl = _mm256_srli_epi64(_mm256_mul_epi32(bl, ql), t);
+    __m256i xh = _mm256_srli_si256(x, 2);
+    __m256i yh = _mm256_srli_si256(y, 2);
+    __m256i ah = _mm256_mul_epu32(xh, yh);
+    __m256i bh = _mm256_srli_epi64(ah, s);
+    __m256i ch = _mm256_srli_epi64(_mm256_mul_epi32(bh, ql), t);
+    __m256i a = _mm256_mullo_epi32(x, y);
+    //__m256i a = _mm256_blend_epi32(al, _mm256_slli_si256(ah, 4), 4+8+64+128);
+    __m256i c = _mm256_or_si256(cl, _mm256_slli_si256(ch, 2));
+    __m256i d = _mm256_sub_epi32(a, _mm256_mullo_epi32(c, p));
+    __m256i result = _mm256_min_epu32(d, _mm256_sub_epi32(d, p));
+    _mm256_storeu_si256((__m256i *) res, result);
+}
 
-    //__m256i a, b, x;
-    //__m256 fx, fx_invP;
-    //__m256i int_fx_invP, int_fx_invP_p, tmp;
+// void vect_mult(Uint *res, Uint *tab1, Uint *tab2) {
+//     int s = 0;
+//     int t = 30;
+//     __m256i p = _mm256_set1_epi32(NB_P);
+//     __m256i zero = _mm256_set1_epi32(0);
+//     __m256i ql = _mm256_set1_epi32(1);
+//     __m256i x = _mm256_loadu_si256((__m256i *) tab1);
+//     __m256i y = _mm256_loadu_si256((__m256i *) tab2);
+    
+//     __m256i xl = _mm256_unpacklo_epi32(x, zero);
+//     __m256i xh = _mm256_unpackhi_epi32(x, zero);
+//     __m256i yl = _mm256_unpacklo_epi32(y, zero);
+//     __m256i yh = _mm256_unpackhi_epi32(y, zero);
+//     __m256i al = _mm256_mul_epu32(xl, yl);
+//     __m256i ah = _mm256_mul_epu32(xh, yh);
+//     __m256i bl = _mm256_srli_epi64(al, s);
+//     __m256i bh = _mm256_srli_epi64(ah, s);
+//     __m256i cl = _mm256_srli_epi64(_mm256_mullo_epi32(bl, ql), t);
+//     __m256i ch = _mm256_srli_epi64(_mm256_mullo_epi32(bh, ql), t);
+//     __m256i c = _mm256_packus_epi32(cl, ch);
+//     __m256i d = _mm256_sub_epi32(_mm256_mullo_epi32(x, y), _mm256_mullo_epi32(c, p));
+//     __m256i result = _mm256_min_epu32(d, _mm256_sub_epi32(d, p));
+//     _mm256_storeu_si256((__m256i *) res, result);
+// }
 
-   // Uint tab1[8] = {2147483647, 1, 10, 2, 10, 0, 10, 0};
-    //Uint tab2[8] = {200, 1, 10, 2, 10, 0, 10, 0};
-    //Uint res[8];
-    double d[4];
-    Uint *testtab1 = malloc(sizeof(Uint)*4);
-    testtab1[0] = 2147483647;
-    Uint *testtab2 = malloc(sizeof(Uint)*4);
-    testtab2[0] = 2000;
-    float *t1 = (float *) testtab1;
-    printf("%f\n", t1[0]);
-    //a = _mm256_loadu_si256((__m256i *) &tab1[i]);
-    //b = _mm256_loadu_si256((__m256i *) &tab2[i]);
-    __m256d a = _mm256_loadu_pd((double *) testtab1);
-    __m256d b = _mm256_loadu_pd((double *) testtab2);
-    __m256d x = _mm256_mul_pd(a, b);
-    _mm256_storeu_pd(d, x);
-    printf("%f %f %f %f\n", d[0], d[1], d[2], d[3]);
+// void vect_mult(Uint *res, Uint *tab1, Uint *tab2) {
+//     __m256i zero = _mm256_set1_epi32(0);
+//     __m256i a = _mm256_loadu_si256((__m256i *) tab1);
+//     __m256i b = _mm256_loadu_si256((__m256i *) tab2);
+//     __m256i a_low = _mm256_unpacklo_epi32(a, zero);
+//     __m256i a_high = _mm256_unpackhi_epi32(a, zero);
+//     __m256i b_low = _mm256_unpacklo_epi32(b, zero);
+//     __m256i b_high = _mm256_unpackhi_epi32(b, zero);
+//     __m256i x_low = _mm256_mul_epu32(a_low, b_low);
+//     __m256i x_high = _mm256_mul_epu32(a_high, b_high);
+//     __m256i result = _mm256_packs_epi32(x_low, x_high);
 
+//     _mm256_storeu_si256((__m256i *) res, result);
+// }
 
-    /*
-    fx = _mm256_cvtepi32_ps(x);
-    fx_invP = _mm256_mul_ps(fx, invP);
-    int_fx_invP = _mm256_cvtps_epi32(fx_invP);
-    int_fx_invP_p = _mm256_mullo_epi32(int_fx_invP, intP);
-    tmp = _mm256_sub_epi32(x, int_fx_invP_p);
-    _mm256_storeu_si256((__m256i *) &res[i], tmp);
-    */
-    //printf("%u %u %u %u %u %u %u %u\n", res[0], res[1], res[2], res[3], res[4], res[5], res[6], res[7]);
+int main() { // 2 / 566qqchose
+    Uint tab1[8] = {754974718, 2, 3, 4, 5, 6, 7, 8};
+    Uint tab2[8] = {754974719, 10, 11, 12, 13, 14, 15, 16};
+    Uint res[8];
+    vect_mult(res, tab1, tab2);
+    printf("%ld\n",  (754974718l*754974719l)%754974721);
+    for (int i = 0; i < 8; i++) {
+        printf("%d ", res[i]);
+    }
+    printf("\n");
     return 0;
 }

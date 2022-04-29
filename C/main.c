@@ -95,8 +95,12 @@ void mult_norm(Uint *res, Uint *tab1, Uint *tab2, Uint taille, Uint p) {
 
 void test_add(Uint *res, Uint *resn, Uint *t1, Uint *t2, Uint taille, Uint p) {
     temps_initial = clock();
+    //__m256i p1 = _mm256_set1_epi32(NB_P);
     for (int i = 0; i < 10000000; i++) {
-        vect_add(res, t1, t2, taille, p);
+        //vect_add(res, t1, t2, taille, p);
+        for (int j = 0; j < taille; j+=8) {
+            vect_mod_add(&res[j], &t1[j], &t2[j]);
+        }
     }
     temps_final = clock();
     temps_cpu = ((double) (temps_final - temps_initial)) / CLOCKS_PER_SEC;
@@ -115,7 +119,10 @@ void test_add(Uint *res, Uint *resn, Uint *t1, Uint *t2, Uint taille, Uint p) {
 void test_sub(Uint *res, Uint *resn, Uint *t1, Uint *t2, Uint taille, Uint p) {
     temps_initial = clock();
     for (int i = 0; i < 10000000; i++) {
-        vect_sub(res, t1, t2, taille, p);
+        //vect_sub(res, t1, t2, taille, p);
+        for (int j = 0; j < taille; j+=8) {
+            vect_mod_sub(&res[j], &t1[j], &t2[j]);
+        }
     }
     temps_final = clock();
     temps_cpu = ((double) (temps_final - temps_initial)) / CLOCKS_PER_SEC;
@@ -151,11 +158,11 @@ void test_mult(Uint *res, Uint *resn, Uint *t1, Uint *t2, Uint taille) {
 }
 
 int main() {
-    srand(time(NULL));
+    //srand(time(NULL));
 
     int p = NB_P;
     //int coeff = 1073741824;
-    int taille = 32;
+    int taille = 80;
     Uint *t1 = (Uint *) malloc(sizeof(Uint)*taille);
     Uint *t2 = (Uint *) malloc(sizeof(Uint)*taille);
 
@@ -179,10 +186,14 @@ int main() {
     Uint *res = (Uint *) malloc(sizeof(Uint)*taille);
     Uint *resn = (Uint *) malloc(sizeof(Uint)*taille);
 
-    test_add(res, resn, t1, t2, taille, p);
+    //test_add(res, resn, t1, t2, taille, p);
     test_sub(res, resn, t1, t2, taille, p);
     //test_mult(res, resn, t1, t2, taille);
 
+    free(t1);
+    free(t2);
+    free(res);
+    free(resn);
     printf("\n");
     return 0;
 }

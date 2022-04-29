@@ -1,6 +1,6 @@
 #include <immintrin.h>
+#include "polynome.h"
 #include "vect.h"
-
 
 __m256i mod_x(Uint *res, __m256i x, Uint i, Uint p) {
     __m256 float_p = _mm256_set1_ps(p);
@@ -20,47 +20,43 @@ __m256i mod_x(Uint *res, __m256i x, Uint i, Uint p) {
     return tmp;
 }
 
-
-void vect_add(Uint *res, Uint *tab1, Uint *tab2, Uint taille, Uint p) {
-    __m256i a, b, x;
-    for (Uint i = 0; i < taille; i += 8) {
-        a = _mm256_loadu_si256((__m256i *) &tab1[i]);
-        b = _mm256_loadu_si256((__m256i *) &tab2[i]);
-        x = _mm256_add_epi32(a, b); // x = a + b
-        x = mod_x(res, x, i, p);
-    }
+void vect_mod_add(Uint *res1, Uint *tab1, Uint *tab2) {
+    __m256i p = _mm256_set1_epi32(NB_P);
+    __m256i a = _mm256_loadu_si256((__m256i *) tab1);
+    __m256i b = _mm256_loadu_si256((__m256i *) tab2);
+    __m256i x = _mm256_add_epi32(a, b);
+    __m256i result = _mm256_min_epu32(x, _mm256_sub_epi32(x, p));
+    // __m256i y = _mm256_sub_epi32(x, p);
+    // __m256i mask = _mm256_cmpgt_epi32(p, x);
+    // __m256i result = _mm256_blendv_epi8(y, x, mask);
+    _mm256_storeu_si256((__m256i *) res1, result);
 }
 
-
-void vect_sub(Uint *res, Uint *tab1, Uint *tab2, Uint taille, Uint p) {
-    __m256i a, b, x;
-    for (Uint i = 0; i < taille; i += 8) {
-        a = _mm256_loadu_si256((__m256i *) &tab1[i]);
-        b = _mm256_loadu_si256((__m256i *) &tab2[i]);
-        x = _mm256_sub_epi32(a, b); // x = a - b
-        mod_x(res, x, i, p);
-    }
+void vect_mod_sub(Uint *res1, Uint *tab1, Uint *tab2) {
+    __m256i p = _mm256_set1_epi32(NB_P);
+    __m256i a = _mm256_loadu_si256((__m256i *) tab1);
+    __m256i b = _mm256_loadu_si256((__m256i *) tab2);
+    __m256i x = _mm256_sub_epi32(a, b);
+    __m256i result = _mm256_min_epu32(x, _mm256_add_epi32(x, p));
+    // __m256i y = _mm256_add_epi32(x, p);
+    // __m256i mask = _mm256_cmpgt_epi32(p, y);
+    // __m256i result = _mm256_blendv_epi8(x, y, mask);
+    _mm256_storeu_si256((__m256i *) res1, result);
 }
 
-void vect_add_sub(Uint *res1, Uint *res2, Uint *tab1, Uint *tab2, Uint taille, Uint p) {
-    __m256i a, b, x;
-    for (Uint i = 0; i < taille; i += 8) {
-        a = _mm256_loadu_si256((__m256i *) &tab1[i]);
-        b = _mm256_loadu_si256((__m256i *) &tab2[i]);
-        x = _mm256_add_epi32(a, b); // x = a + b
-        mod_x(res1, x, i, p);
-        x = _mm256_sub_epi32(a, b); // x = a - b
-        mod_x(res2, x, i, p);
-    }
+void vect_mod_add_sub(Uint *res_add, Uint *res_sub, Uint *tab1, Uint *tab2) {
+    __m256i x, result;
+    __m256i p = _mm256_set1_epi32(NB_P);
+    __m256i a = _mm256_loadu_si256((__m256i *) tab1);
+    __m256i b = _mm256_loadu_si256((__m256i *) tab2);
+
+    // add
+    x = _mm256_add_epi32(a, b);
+    result = _mm256_min_epu32(x, _mm256_sub_epi32(x, p));
+    _mm256_storeu_si256((__m256i *) res_add, result);
+
+    // sub
+    x = _mm256_sub_epi32(a, b);
+    result = _mm256_min_epu32(x, _mm256_add_epi32(x, p));
+    _mm256_storeu_si256((__m256i *) res_sub, result);
 }
-
-
-//void vect_add((Uint *res, Uint *tab1, Uint *tab2, Uint taille, Uint p) {
-//    __m256i a, b, x;
-//    for (Uint i = 0; i < taille; i += 8) {
-//        a = _mm256_loadu_si256((__m256i *) &tab1[i]);
-//        b = _mm256_loadu_si256((__m256i *) &tab2[i]);
-//        x = _mm256_add_epi32(a, b); // x = a + b
-//        
-//    }
-//}

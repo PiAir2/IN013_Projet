@@ -10,4 +10,7 @@ void vect_add(Uint *res, Uint *tab1, Uint *tab2, Uint taille, Uint p);
 void vect_sub(Uint *res, Uint *tab1, Uint *tab2, Uint taille, Uint p);
 void vect_add_sub(Uint *res1, Uint *res2, Uint *tab1, Uint *tab2, Uint taille, Uint p);
 
+void vect_mod_add(Uint *res1, Uint *tab1, Uint *tab2);
+void vect_mod_sub(Uint *res1, Uint *tab1, Uint *tab2);
+void vect_mod_add_sub(Uint *res_add, Uint *res_sub, Uint *tab1, Uint *tab2);
 #endif
