@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <time.h>
+#include <immintrin.h>
 #include "polynome.h"
 
 clock_t temps_initial;
@@ -62,7 +63,7 @@ void test_eval(int deg, Uint racine) {
     printf("Degré = %d | Temps eval() = %f\n", P.deg, temps_cpu);
 
     // for (int i = 0; i < P.deg+1; i++) {
-    //     // printf("%d %d %d\n", res[i], horner(P_cpy, racines[i]), racines[i]);
+    //     //  printf("coeff numéro : , eval = %d, horner = %d\n", res[i], horner(P_cpy, racines[i]));
     //     assert(res[i] == horner(P_cpy, racines[i]));
     // }
     // afficher_poly(P);
@@ -70,7 +71,7 @@ void test_eval(int deg, Uint racine) {
     liberer_poly(P);
 }
 
-void test_vect_eval(int deg, Uint racine) {
+void test_vect_eval(Uint deg, Uint racine) {
     Poly P = gen_poly(deg);
     Poly P_cpy = copy_poly(P, 0, P.deg);
     Uint *racines = get_racines(racine, P.deg+1);
@@ -78,14 +79,16 @@ void test_vect_eval(int deg, Uint racine) {
     temps_initial = clock();
     Uint *tmp_coeffs = (Uint *) malloc(sizeof(Uint)*(deg+1));
     Uint *tmp_sub = (Uint *) malloc(sizeof(Uint)*(deg+1));
-    Uint *res = vect_eval(P.coeffs, P.deg+1, tmp_coeffs, racines, 1, tmp_sub);
+    __m256i u = _mm256_set_epi32(7, 6, 5, 4, 3, 2, 1, 0);
+    Uint *res = vect_eval(P.coeffs, P.deg+1, tmp_coeffs, racines, 1, tmp_sub, &u);
     temps_final = clock();
     temps_cpu = ((double) (temps_final - temps_initial)) / CLOCKS_PER_SEC;
     printf("Degré = %d | Temps vect_eval() = %f\n", P.deg, temps_cpu);
 
     // for (int i = 0; i < P.deg+1; i++) {
-    //     // printf("%d %d %d\n", res[i], horner(P_cpy, racines[i]), racines[i]);
-    //     assert(res[i] == horner(P_cpy, racines[i]));
+    //     int horner_x = horner(P_cpy, racines[i]);
+    //     if (res[i] != horner_x) printf("i = %d, vect_eval[i] = %d, horner[i] = %d\n", i, res[i], horner_x);
+    //     assert(res[i] == horner_x);
     // }
     // afficher_poly(P);
     
@@ -93,7 +96,7 @@ void test_vect_eval(int deg, Uint racine) {
 }
 
 int main() {
-    //srand(time(NULL));
+    srand(time(NULL));
 
     //Uint racine = 2;
     //Uint ordre_racine = (NB_P-1)/2;
@@ -102,8 +105,8 @@ int main() {
 
     //compare_naif_karatsuba();
 
-    // 65535, 16777215;
-    int deg = 16777215; //2^k - 1
+    // 65535, 16777215, 33554431, 67108863;
+    Uint deg = 16777215; //2^k - 1
     Uint rac = mod_pow(racine, ordre_racine/(deg+1));
     for (int i = 0; i < 10; i++) {
         test_eval(deg, rac);

@@ -2,7 +2,7 @@
 #PROFILER=-pg
 PROFILER=
 
-CFLAGS=-Wall -O2 -c $(PROFILER)
+CFLAGS=-mavx2 -Wall -O2 -c $(PROFILER)
 
 LDFLAGS=-lm $(PROFILER)
 
@@ -18,10 +18,10 @@ polynome.o : polynome.h polynome.c
 	gcc $(CFLAGS) polynome.c
 
 vect.o : vect.h vect.c
-	gcc -mavx2 $(CFLAGS) vect.c
+	gcc $(CFLAGS) vect.c
 
 main.o : main.c polynome.h
-	gcc -mavx2 $(CFLAGS) main.c
+	gcc $(CFLAGS) main.c
 
 test.o : test.c polynome.h
 	gcc $(CFLAGS) test.c

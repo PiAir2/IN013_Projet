@@ -1,9 +1,17 @@
 #ifndef POLYNOME_H
 #define POLYNOME_H
 
-//#define NB_P // tests
-//#define NB_P 2013265921 // racine = 2, ordre = (NB_P-1)/2
-#define NB_P 754974721 // racine = 11, ordre = NB_P-1
+#include <math.h>
+#include <immintrin.h>
+
+//#define NB_P 2013265921 // racine = 2, ordre = (P-1)/2, 31 bits = R
+#define NB_P 754974721 // racine = 11, ordre = P-1, 30 bits = R
+
+#define NB_R log(NB_P)/log(2) // 2^(R-1) < P <=  2^R
+// choix de T et S tels que T >= R et S+T < n+R-1, ici n=32
+#define NB_T 30
+#define NB_S 27
+#define NB_Q (int) (pow(2,NB_T+NB_S)/NB_P) // Q = floor(2^(S+T)/P)
 
 typedef unsigned int Uint;
 
@@ -28,8 +36,9 @@ Uint mod_add(Uint a, Uint b, Uint p);
 Uint mod_sub(Uint a, Uint b, Uint p);
 Uint mod_mult(Uint a, Uint b, Uint p);
 Uint inv(Uint a, Uint p);
-//Uint *eval(Poly P, Uint *racines);
+// Uint *eval(Poly P, Uint *racines);
 Uint *eval(Uint *coeffs, Uint taille, Uint *tmp_coeffs, Uint *racines, Uint pas_rac);
-Uint *vect_eval(Uint *coeffs, Uint taille, Uint *tmp_coeffs, Uint *racines, Uint pas_rac, Uint *tmp_sub);
+Uint *vect_eval(Uint *coeffs, Uint taille, Uint *tmp_coeffs, Uint *racines, Uint pas_rac, Uint *tmp_sub,
+            __m256i *u);
 
 #endif

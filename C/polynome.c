@@ -225,7 +225,9 @@ Uint *eval(Uint *coeffs, Uint deg, Uint *tmp_coeffs, Uint *racines, Uint pas_rac
     return coeffs;
 }
 
-Uint *vect_eval(Uint *coeffs, Uint taille, Uint *tmp_coeffs, Uint *racines, Uint pas_rac, Uint *tmp_sub) {
+Uint *vect_eval(Uint *coeffs, Uint taille, Uint *tmp_coeffs, Uint *racines, Uint pas_rac, Uint *tmp_sub, 
+        __m256i *u) {
+
     if (taille == 1) {
 		return &coeffs[0];
     }
@@ -235,11 +237,24 @@ Uint *vect_eval(Uint *coeffs, Uint taille, Uint *tmp_coeffs, Uint *racines, Uint
     
     if (k >= 8) {
         for (Uint i = 0; i < k; i += 8) {
-            vect_mod_add_sub(&tmp_coeffs[i], &tmp_sub[i], &coeffs[i], &coeffs[i+k]);
+            vect_mod_add_sub_eval(&tmp_coeffs[i], &tmp_sub[i], &coeffs[i], &coeffs[i+k]);
+            vect_mod_mult_eval(&tmp_coeffs[i+k], &tmp_sub[i], racines, i, pas_rac, u);
         }
-        for (Uint i = 0; i < k; i++) {
-            tmp_coeffs[i+k] = mod_mult(tmp_sub[i], racines[i*pas_rac], NB_P);
-        }
+        // printf("\n============ COEFFS ==============\n");
+        // for (Uint i = 0; i < k; i++) {
+        //     printf("%d %d\n", tmp_sub[i], racines[i*pas_rac]);
+        // }
+        // printf("\n============ VECT ===========\n");
+        // for (Uint i = 0; i < k; i++) {
+        //     printf("%d ", tmp_coeffs[i+k]);
+        // }
+        // printf("\n========== NORMAL =============\n");
+        // for (Uint i = 0; i < k; i++) {
+        //     tmp_coeffs[i+k] = mod_mult(tmp_sub[i], racines[i*pas_rac], NB_P);
+        // }
+        // for (Uint i = 0; i < k; i++) {
+        //     printf("%d ", tmp_coeffs[i+k]);
+        // }
     } else {
         for (Uint i = 0; i < k; i++) {
             tmp_coeffs[i] = mod_add(coeffs[i], coeffs[i+k], NB_P);
@@ -249,8 +264,8 @@ Uint *vect_eval(Uint *coeffs, Uint taille, Uint *tmp_coeffs, Uint *racines, Uint
     }
     
     tmp = pas_rac*2;
-    Uint *r0 = vect_eval(tmp_coeffs, k, coeffs, racines, tmp, tmp_sub);
-    Uint *r1 = vect_eval(&tmp_coeffs[k], k, &coeffs[k], racines, tmp, tmp_sub);
+    Uint *r0 = vect_eval(tmp_coeffs, k, coeffs, racines, tmp, tmp_sub, u);
+    Uint *r1 = vect_eval(&tmp_coeffs[k], k, &coeffs[k], racines, tmp, tmp_sub, u);
 
     for (Uint i = 0; i < k; i++) {
         tmp = 2*i;
