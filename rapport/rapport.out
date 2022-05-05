@@ -1,9 +1,0 @@
-\BOOKMARK [1][-]{section*.2}{Introduction}{}% 1
-\BOOKMARK [1][-]{section.1}{Algorithme Na\357f et de Karatsuba}{}% 2
-\BOOKMARK [2][-]{subsection.1.1}{Impl\351mentation}{section.1}% 3
-\BOOKMARK [2][-]{subsection.1.2}{Comparaison - Na\357f/Karatsuba}{section.1}% 4
-\BOOKMARK [1][-]{section.2}{Fast Fourier Transform \(FFT\)}{}% 5
-\BOOKMARK [2][-]{subsection.2.1}{Fonctionnement}{section.2}% 6
-\BOOKMARK [2][-]{subsection.2.2}{\311valution d'un polyn\364me en un point}{section.2}% 7
-\BOOKMARK [3][-]{subsubsection.2.2.1}{Impl\351mentation}{subsection.2.2}% 8
-\BOOKMARK [3][-]{subsubsection.2.2.2}{Tests de temps}{subsection.2.2}% 9
