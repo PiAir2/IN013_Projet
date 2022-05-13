@@ -66,7 +66,7 @@ void test_eval(int deg, Uint racine) {
     //     //  printf("coeff numéro : , eval = %d, horner = %d\n", res[i], horner(P_cpy, racines[i]));
     //     assert(res[i] == horner(P_cpy, racines[i]));
     // }
-    // afficher_poly(P);
+    // // afficher_poly(P);
     
     liberer_poly(P);
 }
@@ -98,8 +98,8 @@ void test_vect_eval(Uint deg, Uint racine) {
 int main() {
     srand(time(NULL));
 
-    //Uint racine = 2;
-    //Uint ordre_racine = (NB_P-1)/2;
+    // Uint racine = 2;
+    // Uint ordre_racine = (NB_P-1)/2;
     Uint racine = 11;
     Uint ordre_racine = NB_P-1;
 
@@ -112,6 +112,12 @@ int main() {
         test_eval(deg, rac);
         test_vect_eval(deg, rac);
     }
+
+    // for (Uint i = 32768; i <= pow(2, 24); i = i*2) {
+    //     Uint deg = i-1;
+    //     Uint rac = mod_pow(racine, ordre_racine/(deg+1));
+    //     test_eval(deg, rac);
+    // }
     
     printf("\n");
     return 0;

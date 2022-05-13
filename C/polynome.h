@@ -4,8 +4,9 @@
 #include <math.h>
 #include <immintrin.h>
 
-//#define NB_P 2013265921 // racine = 2, ordre = (P-1)/2, 31 bits = R
+// #define NB_P 2013265921 // racine = 2, ordre = (P-1)/2, 31 bits = R
 #define NB_P 754974721 // racine = 11, ordre = P-1, 30 bits = R
+                       // 754974721 = 1 + 2^24 * 3^2 * 5 => degré max du polynôme = 2^24
 
 #define NB_R log(NB_P)/log(2) // 2^(R-1) < P <=  2^R
 // choix de T et S tels que T >= R et S+T < n+R-1, ici n=32

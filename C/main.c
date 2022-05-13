@@ -76,7 +76,7 @@ void test_sub(Uint *res, Uint *resn, Uint *t1, Uint *t2, Uint taille, Uint p) {
 
 void test_mult(Uint *res, Uint *resn, Uint *t1, Uint *t2, Uint taille) {
     temps_initial = clock();
-    for (int i = 0; i < 10000000; i++) {
+    for (int i = 0; i < 1; i++) {
         for (int j = 0; j < taille; j+=8) {
             vect_mod_mult(&res[j], &t1[j], &t2[j]);
         }
@@ -86,7 +86,7 @@ void test_mult(Uint *res, Uint *resn, Uint *t1, Uint *t2, Uint taille) {
     //for (int i = 0; i < taille; i++) printf("%d ", res[i]);
     printf("\nmult tmps vect : %f\n", temps_cpu);
     temps_initial = clock();
-    for (int i = 0; i < 10000000; i++) {
+    for (int i = 0; i < 1; i++) {
         mult_norm(resn, t1, t2, taille, NB_P);
     }
     temps_final = clock();
@@ -102,7 +102,7 @@ int main() {
 
     int p = NB_P;
     //int coeff = 1073741824;
-    int taille = 80;
+    int taille = 80000000;
     Uint *t1 = (Uint *) malloc(sizeof(Uint)*taille);
     Uint *t2 = (Uint *) malloc(sizeof(Uint)*taille);
 
@@ -122,8 +122,8 @@ int main() {
     Uint *res = (Uint *) malloc(sizeof(Uint)*taille);
     Uint *resn = (Uint *) malloc(sizeof(Uint)*taille);
 
-    test_add(res, resn, t1, t2, taille, p);
-    test_sub(res, resn, t1, t2, taille, p);
+    //test_add(res, resn, t1, t2, taille, p);
+    //test_sub(res, resn, t1, t2, taille, p);
     test_mult(res, resn, t1, t2, taille);
 
     free(t1);
