@@ -165,14 +165,14 @@ Uint inv(Uint a, Uint p) {
 }
 
 
-Uint *eval_malloc(Poly P, Uint *racines) { //P.deg = 2^k - 1
+Uint *eval_malloc(Poly P, Uint *racines) {
     if (P.deg == 0) {
         Uint *tmp = (Uint *) malloc(sizeof(Uint));
         tmp[0] = (P.coeffs)[0];
         return tmp;
     }
     Uint k = (P.deg + 1)/2;
-    Poly R0 = creer_poly(k-1);
+    Poly R0 = creer_poly(k-1); // creer_poly() fait un malloc
     Poly R1 = creer_poly(k-1);
 
 	Uint tmp;
@@ -198,14 +198,6 @@ Uint *eval(Uint *coeffs, Uint deg, Uint *tmp_coeffs, Uint *racines, Uint pas_rac
     if (deg == 0) {
 		return &coeffs[0];
     }
-
-	/* // Base case deg==1: correct but no timing improvement
-    if (deg == 1) {
-		Uint tmp = mod_sub(coeffs[0],coeffs[1], NB_P);
-		coeffs[0] = mod_add(coeffs[0],coeffs[1], NB_P);
-		coeffs[1] = tmp;
-		return &coeffs[0];
-    }*/
 
     Uint k = (deg + 1)/2;
     
