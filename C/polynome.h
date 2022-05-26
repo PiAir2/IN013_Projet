@@ -37,7 +37,7 @@ Uint mod_add(Uint a, Uint b, Uint p);
 Uint mod_sub(Uint a, Uint b, Uint p);
 Uint mod_mult(Uint a, Uint b, Uint p);
 Uint inv(Uint a, Uint p);
-// Uint *eval(Poly P, Uint *racines);
+Uint *eval_malloc(Poly P, Uint *racines);
 Uint *eval(Uint *coeffs, Uint taille, Uint *tmp_coeffs, Uint *racines, Uint pas_rac);
 Uint *vect_eval(Uint *coeffs, Uint taille, Uint *tmp_coeffs, Uint *racines, Uint pas_rac, Uint *tmp_sub,
             __m256i *u);

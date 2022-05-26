@@ -164,8 +164,8 @@ Uint inv(Uint a, Uint p) {
     return 0;
 }
 
-/*
-Uint *eval(Poly P, Uint *racines) { //P.deg = 2^k - 1
+
+Uint *eval_malloc(Poly P, Uint *racines) { //P.deg = 2^k - 1
     if (P.deg == 0) {
         Uint *tmp = (Uint *) malloc(sizeof(Uint));
         tmp[0] = (P.coeffs)[0];
@@ -175,7 +175,6 @@ Uint *eval(Poly P, Uint *racines) { //P.deg = 2^k - 1
     Poly R0 = creer_poly(k-1);
     Poly R1 = creer_poly(k-1);
 
-	// TODO plus tard: reessayer sans tmp
 	Uint tmp;
     Uint *racines_bis = (Uint *) malloc(sizeof(Uint) * k);
     for (int i = 0; i < k; i++) {
@@ -184,8 +183,8 @@ Uint *eval(Poly P, Uint *racines) { //P.deg = 2^k - 1
         (R1.coeffs)[i] = mod_mult(tmp, racines[i], NB_P);
         racines_bis[i] = racines[2*i];
     }
-    Uint *r0 = eval(R0, racines_bis);
-    Uint *r1 = eval(R1, racines_bis);
+    Uint *r0 = eval_malloc(R0, racines_bis);
+    Uint *r1 = eval_malloc(R1, racines_bis);
     Uint *res = (Uint *) malloc(sizeof(Uint) * 2*k);
     for (int i = 0; i < k; i++) {
         res[2*i] = r0[i];
@@ -193,7 +192,7 @@ Uint *eval(Poly P, Uint *racines) { //P.deg = 2^k - 1
     }
     return res;
 }
-*/
+
 
 Uint *eval(Uint *coeffs, Uint deg, Uint *tmp_coeffs, Uint *racines, Uint pas_rac) {
     if (deg == 0) {
