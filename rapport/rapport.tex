@@ -52,7 +52,33 @@ trouvés, nous avons implémenté l'algorithme de Karatsuba. (METTRE SOURCES)
 
 \subsection{Comparaison - Naïf/Karatsuba}
 L'algorithme naïf est en $O(n^2)$ et celui de Karatsuba en $O(n^{log_2(3)}) \approx O(n^{1.58})$ \\
-(rajouter le nom des axes sur le graph. Ou faire un tableau ?) \\
+
+\begin{center}
+\begin{tabular}{||c c c||}
+\hline
+Degré (+1) & Naif & Karatsuba \\
+\hline\hline
+$2^{16}$ & XX & XX \\
+\hline
+$2^{17}$ & XX & XX \\
+\hline
+$2^{18}$ & XX & XX \\
+\hline
+$2^{19}$ & XX & XX \\
+\hline
+$2^{20}$ & XX & XX \\
+\hline
+$2^{21}$ & XX & XX \\
+\hline
+$2^{22}$ & XX & XX \\
+\hline
+$2^{23}$ & XX & XX \\
+\hline
+$2^{24}$ & XX & XX \\
+\hline
+\end{tabular}
+\end{center}
+
 \includegraphics[scale=1]{naif_kara}\\
 
 \section{Fast Fourier Transform (FFT)}
@@ -154,7 +180,7 @@ $2^{24}$ & XX & XX \\
 \end{tabular}
 \end{center}
 
-\subsection{Implémentation de la vectorisation dans la FFT avec AVX2}
+\section{Implémentation de la vectorisation dans la FFT avec AVX2}
 
 Pour que notre FFT soit encore plus rapide, nous avons eu recours à la vectorisation avec AVX2. AVX2 nous permet de faire un certains nombres d'opération (addition, soustraction...) beaucoup plus rapidement qu'avec les opérateurs normaux de C. En effet, AVX2 permet de créer un type de variable ($\_\_m256i$) pouvant stocker 8 entiers de 32 bits (comme si c'était un tableau), ce qui correspond parfaitement avec ce quoi nous travaillons. AVX2 pouvant faire une opération élémentaire sur deux $\_\_m256i$ aussi vite qu'une opération élémentaire sur deux $int$ en C, on voit qu'on peut aller jusqu'à 8 fois plus vite avec AVX2. Voici un exemple de l'addition de deux $\_\_m256i$ en AVX2 : 
 
@@ -165,7 +191,7 @@ __m256i x = _mm256_add_epi32(a, b);
 // on a x == [2, 2, 4, 4, 6, 6, 8, 8]
 \end{lstlisting}
 
-\subsubsection{Opération modulo p avec AVX2}
+\subsection{Opération modulo p avec AVX2}
 
 Le problème avec AVX2 est qu'il n'y a pas d'opération modulo, de plus, comme on fait des opérations directement sur 8 entiers en même temps, il est difficile de faire le modulo comme dans la partie 2.1.2. Par exemple, pour l'addition supposons que $p = 7$, $\overrightarrow{a} = [6, 2, 0, 0, 0, 0, 0, 0]$, $\overrightarrow{b} = [4, 1, 0, 0, 0, 0, 0, 0]$ et $\overrightarrow{x} = \overrightarrow{a}+\overrightarrow{b}$, on a notamment $\overrightarrow{x}[0] = 10$ et $\overrightarrow{x}[1] = 3$, on devrait donc retirer $p$ pour faire le modulo sur $\overrightarrow{x}[0]$ mais alors on aurait $\overrightarrow{x}[1] = 3-7 = -4$, ce qui n'est pas bon.\\ 
 Pour faire l'addition et la soustraction, il faut savoir qu'AVX2 nous permet de prendre les minimums "positif" sur chaque cases de deux $\_\_m256i$ (tous les nombres négatifs vont être converti en $Uint$), par exemple :\\ $min\_pos([1, 0],\  [0, -10]) = min([1, 0], \ [0,$ UINT\_MAX$-10]) = [0, 0]$ et non $[0, -10]$. \\
@@ -173,13 +199,14 @@ Pour l'addition, après avoir eu $\overrightarrow{x} = \overrightarrow{a}+\overr
 C'est la même logique pour la soustraction $\overrightarrow{x} = \overrightarrow{a}-\overrightarrow{b}$, on prend $min\_pos(\overrightarrow{x},\ \overrightarrow{x}+\overrightarrow{p})$. \\
 Pour la multiplication, nous avons utilisé l'algorithme de réduction de Barrett, nous nous sommes inspirés de cette source (METTRE SOURCE) qui montre comment faire cette algorithme avec vectorisation sur des entiers 16 bits.
 
-\subsubsection{Implémentation dans la DFT}
+\subsection{Implémentation dans la DFT}
 
 L'implémentation de l'addition et soustraction vectorisée dans la DFT est plutôt directe, on fait une boucle dont l'indice augmente de 8 en 8 en passant les tableaux de taille 8 correspondants dans les fonctions de vectorisation. \\
 De plus, on remarque que dans la DFT, on doit faire une addition et une soustraction avec les mêmes coefficients ($p_i+p_{i+k}$ et $p_i-p_{i+k}$). On remarque aussi que dans les fonctions $vect\_mod\_add()$ et $vect\_mod\_sub()$, nous devons charger les tableaux en $\_\_m256i$ à chaque fois (avec la fonction $\_mm256\_loadu\_si256()$). Pour optimiser, nous avons donc fait la fonction $vect\_mod\_add\_sub\_eval()$ qui permet de faire l'addition et la soustraction en ne chargeant qu'une fois les deux tableaux. \\
 implémentaiton Multiplication.
 
-\subsubsection{Tests de temps}
+\subsection{Tests de temps}
+
 \begin{center}
 \begin{tabular}{||c c c||}
 \hline
