@@ -36,7 +36,7 @@
 \section*{Introduction}
 \addcontentsline{toc}{section}{Introduction}
 Dans le cadre de l'UE LU2IN013, nous avons réalisé un projet sur l'optimisation de calculs sur les polynômes à une variable. Le but final de ce projet est la multiplication de deux polynômes sur $\mathbb{Z}/p\mathbb{Z}$ le plus efficacement possible.\\
-Pour ce faire, nous nous intéressons à plusieurs type d'algorithmes pour la multiplication, en particulier : l'algorithme naïf, de Karatsuba et FFT.\\
+Pour ce faire, nous nous intéressons à plusieurs type d'algorithmes pour la multiplication, en particulier : l'algorithme naïf, de Karatsuba et de multiplication par la FFT.\\
 Nous avons tout d'abord commencé avec Python mais nous avions besoin d'un langage bas niveau pour plus de rapidité d'où le fait qu'on a rapidement changé pour le C.
 
 \section{Algorithme Naïf et de Karatsuba}
@@ -79,27 +79,28 @@ $2^{24}$ & XX & XX \\
 \end{tabular}
 \end{center}
 
-\includegraphics[scale=1]{naif_kara}\\
 
 \section{Fast Fourier Transform (FFT)}
+
+Par la suite, nous avons vu un troisième algorithme encore plus performant que Karatsuba pour des polynômes de degrés supérieurs à environ 100. Le nom de cet algorithme est la FFT (Fast Fourier Transform). 
 
 \newtheorem{Thm1}{Théorème}
 \begin{Thm1}
 Soient $a_1,\dots,a_n$ et $b_1,\dots,b_n$ des nombres réels (avec les $a_i$ deux à deux distincts). Aors il existe un unique polynôme P de degré n-1 tel que pour tout i dans $\{1,..., n\},\ P(a_i)\ =\ b_i$.
 \end{Thm1}
 
-La FFT se base sur ce théorème, en effet, l’idée est d’évaluer les polynômes $P$ et $Q$ en des points bien choisis, de faire le produits de ces évaluations et de retrouver l’unique polynôme $R=PQ$ à partir des valeurs du produit. Pour les points choisis, on prend les racines de l’unité car ?.
+La FFT se base sur ce théorème, en effet, l’idée est d’évaluer les polynômes $P$ et $Q$ de degrés n en des points spécifiques, qui sont des puissances successives d'une racine principale n-ième de l'unité $\omega$ du corps $\mathbb{Z}/p\mathbb{Z}$. Puis, il faut faire le produit de ces évaluations et retrouver l’unique polynôme $R=PQ$ à partir des valeurs du produit. \\
  
 \begin{tcolorbox}[colback=cyan!5!white,
                   colframe=cyan!100!black,
-                  title=\textbf{Algorithme FFT (METTRE SOURCES)}
+                  title=\textbf{Algorithme de multiplication par la FFT (METTRE SOURCES)}
                  ]
-\textbf{Entrée.} $P$ et $Q$ deux polynômes, n un entier, et $\omega$ une racine principale n-ième de l’unité. \\
+\textbf{Entrée.} $P$ et $Q$ deux polynômes, n une puissance de 2 tel que $n>deg(PQ)$, et $\omega$ une racine principale n-ième de l’unité. \\
 \textbf{Sortie.} $R = PQ$ \\
 \textbf{Algorithme.}
 \begin{enumerate}[itemsep=-2ex]
-\item\textit{Précalcul}. Calculer les puissances $\omega^2,\dots,\omega^{n-1}$. \\
-\item\textit{Évaluation}. Calculer les valeurs : \\ $Eval(P)=(P(\omega^0),\dots,P(\omega^{n-1}))$ ; $Eval(Q)=(Q(\omega^0),\dots,Q(\omega^{n-1}))$. \\
+\item\textit{Précalcul}. Calculer les puissances $\omega^0,\omega^1,\omega^2,\dots,\omega^{n-1}$. \\
+\item\textit{Évaluation (DFT)}. Calculer les valeurs : \\ $Eval(P)=(P(\omega^0),\dots,P(\omega^{n-1}))$ ; $Eval(Q)=(Q(\omega^0),\dots,Q(\omega^{n-1}))$. \\
 \item\textit{Produit point à point}. $Eval(R) = (PQ(\omega^0),\dots,PQ(\omega^{n-1}))$. \\
 \item\textit{Interpolation}. On retrouve $R$ grâce à $Eval(R)$.
 \end{enumerate}
@@ -108,7 +109,11 @@ On voit que la complexité des étapes de précalcul et de produit point à poin
 
 \subsection{Évalution d'un polynôme (DFT)}
 
-L'algorithme d'évaluation d'un polynôme est la deuxième étape de la FFT aussi appelé DFT (Discrete Fourier Transform), il se base sur le principe de diviser pour régner. 
+L'algorithme d'évaluation d'un polynôme est la deuxième étape de la FFT aussi appelé DFT (Discrete Fourier Transform), il se base sur le principe de diviser pour régner.
+Soient $n = 2^k\ et\ P(X) = p_n X_n +\dots+p_1 X + p_0$, on note $P_0$ et $P_1$ les polynômes de coefficients respectivement pair et impair de $P$, c'est-à-dire : \\
+$P_0(X) = p_{n} X^{n/2} +\dots+ p_2 X + p_0\ et\ P_1(X) = p_{n-1} X^{n/2} +\dots+ p_3 X + p_1$. \\
+On a alors que $P(X) = P_0(X^2)+X P_1(X^2)$. \\
+La DFT se base sur cette propriété. En effet, on voit très vite qu'avec une telle décomposition, on peut faire un algorithme récursif où l'on divise le degré par deux à chaque fois.
 
 \begin{tcolorbox}[colback=cyan!5!white,
                   colframe=cyan!100!black,
@@ -119,15 +124,33 @@ L'algorithme d'évaluation d'un polynôme est la deuxième étape de la FFT auss
 \textbf{Algorithme.}
 \end{tcolorbox}
 
-Soient $n = 2^k\ et\ P(X) = p_n X_n +\dots+p_1 X + p_0$, on note $P_0$ et $P_1$ les polynômes de coefficients respectivement pair et impair de $P$, c'est-à-dire : \\
-$P_0(X) = p_{n} X^{n/2} +\dots+ p_2 X + p_0\ et\ P_1(X) = p_{n-1} X^{n/2} +\dots+ p_3 X + p_1$. \\
-On a alors que $P(X) = P_0(X^2)+X P_1(X^2)$. \\
-La DFT se base sur cette propriété. En effet, on voit très vite qu'avec une telle décomposition, on peut faire un algorithme récursif où l'on divise le degré par deux à chaque fois.
+On voit que dans la deuxième étape de l'algorithme, nous devons faire une boucle allant de 0 à $\frac{n}{2}-1$ pour les polynômes $R_0$ et $R_1$. Cette opération se fait en $O(n)$. De plus, le degré étant divisé par deux à chaque tour de récursion, on voit que la complexité de la DFT est en $O(n*log_2(n))$. \\
+Par ailleurs, on sait montrer que pour l'étape d'interpolation, il suffit de réutiliser l'algorithme de DFT mais en appelant la fonction avec les coefficients $Eval(R)=Eval(PQ)$, et, avec l'inverse des racines principales n-ième de l'unité, c'est-à-dire, $\omega^{0},\omega^{-1},\omega^{-2},\dots,\omega^{-(n-1)}$.
+On en déduit donc que la complexité de la FFT est $O(n*log_2(n))$.
 
-\subsubsection{Utilisation des unsigned int (Uint)}
+\subsubsection{Utilisation des unsigned int (Uint) et choix de p}
 
 Comme nous travaillons sur $\mathbb{Z}/p\mathbb{Z}$, les coefficients des polynômes sont tous positifs. Cela nous permet de travailler avec des $unsigned\ int\ (Uint)$ et ainsi de travailler avec des entiers plus grands (jusqu’à $2^{32}-1$ au lieu de $2^{31}-1$ avec les $int$). Notre nombre premier valant initialement $p=2013265921$ $(2^{30} < p < 2^{31})$, les $Uint$ nous permettaient de pouvoir stocker la somme de deux entiers a et b entre $2^{30}$ et $p-1$, alors que ce n'était possible avec les $int$ car $a+b\geq2\times2^{30}=2^{31}$. \\
-Malheureusement lors de l'implémentation de la vectorisation avec AVX2 dans notre code, nous avons vu qu'AVX2 ne permettait que de stocker des $int$, c'est pourquoi nous avons décidé de prendre un nombre premier plus petit, $p=754974721$ qui est entre $2^{29}$ et  $2^{30}$.
+Malheureusement lors de l'implémentation de la vectorisation avec AVX2 dans notre code, nous avons vu qu'AVX2 ne permettait que de stocker des $int$, c'est pourquoi nous avons décidé de prendre un nombre premier plus petit, $p=754974721$ qui est entre $2^{29}$ et  $2^{30}$. \\
+De plus, le choix de p doit être judicieux pour pouvoir trouver des racines principales n-ième de l'unité. En effet, ici $p = 754974721 = 1+2^{24}*3^2*5$, une racine primitive $p-1$ ième de l'unité est $r = 11$, c'est-à-dire que $11^{p-1}\ \%\ p = 1$. On dit que $ordre = p-1$ est l'ordre de la racine. Ainsi, pour trouver une racine principale n-ième de l'unité pour la FFT, nous avons la formule $r\_principale = r^{ordre/n}\ \% \ p$. On remarque aussi dans cette formule qu'il faut que $ordre$ soit divisible par $n$, sachant que n est une puissance de 2, c'est pourquoi il faut qu'il y ait une grosse puissance de 2 dans la décomposition de $p$ pour multiplier des polynômes de degrés conséquent : ici, $ordre = p-1 = 2^{24}*3^2*5$. On comprend donc qu'avec ce nombre premier muni de la racine $r = 11$, on multiplie au plus des polynômes de degrés $2^{24}$.
+
+\subsubsection{Comparaison de temps des opérations sans et avec AVX}
+
+Dans cette partie, nous allons comparer les temps d'exécution pour les opérations d'addition, de soustraction et de multiplication modulo p sans AVX et avec AVX. Pour cela, nous avons fait les opérations sur deux tableaux de taille $8*10^{17}$, et,à chaque fois, on répète 10 fois la même opération pour avoir des temps conséquent.
+
+\begin{center}
+\begin{tabular}{||c c c||}
+\hline
+Opération & Sans AVX & Avec AVX \\
+\hline\hline
+Addition & XX & XX \\
+\hline
+Soustraction & XX & XX \\
+\hline
+Multiplication & XX & XX \\
+\hline
+\end{tabular}
+\end{center}
 
 \subsubsection{Opérations modulo p}
 
@@ -151,8 +174,8 @@ Nous avons d'abord fait une première version fonctionnelle mais pas du tout opt
 
 On voit que les malloc représentent environ 40\% du temps d'exécution de la fonction ! \\
 Pour optimiser cette fonction, notre priorité était alors de réduire le nombre de malloc. Nous avons d'abord remarqué qu'on pouvait enlever le malloc pour le tableau $racines\_bis$, en effet, ce tableau sert à stocker les valeurs des cases $0,2,\dots,n$ du tableau $racines$, donc on a pu se passer du tableau $racines\_bis$ en passant en paramètre un pas $pas\_rac$ qu'on multiplie par deux à chaque tour. \\
-Pour le malloc des tableaux de $R_0$ et $R_1$ de tailles $n/2$, nous avons pu les enlever en remarquant qu'on pouvait stocker les coefficients de $R_0$ dans la première moitié du tableau de $P$ (de taille n) et ceux de $R_1$ dans la deuxième moitié. Ceci étant grâce au fait qu'on ai plus besoin de $P$ aux prochains tours de récursion.
-Comme prévu la nouvelle fonction optimisée (fonction $eval()$) était environ 40\% plus rapide que la première version :
+Pour le malloc des tableaux de $R_0$ et $R_1$ de tailles $\frac{n}{2}$, nous avons pu les enlever en remarquant qu'on pouvait stocker les coefficients de $R_0$ dans la première moitié du tableau de $P$ (de taille n) et ceux de $R_1$ dans la deuxième moitié. Ceci étant grâce au fait qu'on ai plus besoin de $P$ aux prochains tours de récursion.
+Comme prévu la nouvelle fonction optimisée (fonction $eval()$) est environ 40\% plus rapide que la première version :
 
 \begin{center}
 \begin{tabular}{||c c c||}
@@ -232,5 +255,9 @@ $2^{24}$ & XX & XX \\
 \hline
 \end{tabular}
 \end{center}
+
+\bibliographystyle{plain}
+\bibliography{biblio}
+\nocite{*}
 
 \end{document}
