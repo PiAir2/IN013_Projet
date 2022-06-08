@@ -36,7 +36,7 @@ void compare_naif_karatsuba() {
     FILE *f = fopen("./gnuplot/temps/temps_naif_kara.txt", "w");
     Poly P, Q, R1, R2;
     double temps_naif, temps_karatsuba;
-    for (int i = 32; i < 100000; i *= 2) {
+    for (int i = 32; i < 10000000; i *= 2) {
         P = gen_poly(i);
         Q = gen_poly(i);
 
@@ -82,8 +82,8 @@ void test_eval(int deg, Uint racine_p, int aff, int v) {
     Poly P = gen_poly(deg);
     Poly P_cpy = copy_poly(P, 0, P.deg);
     Uint *racines = get_racines(racine_p, P.deg+1);
-    temps_initial = clock();
     Uint *tmp_coeffs = (Uint *) malloc(sizeof(Uint)*(deg+1));
+    temps_initial = clock();
     Uint *res = eval(P.coeffs, P.deg+1, tmp_coeffs, racines, 1);
     temps_final = clock();
     temps_cpu = ((double) (temps_final - temps_initial)) / CLOCKS_PER_SEC;
@@ -99,8 +99,8 @@ void test_vect_eval(Uint deg, Uint racine_p, int aff, int v) {
     Poly P = gen_poly(deg);
     Poly P_cpy = copy_poly(P, 0, P.deg);
     Uint *racines = get_racines(racine_p, P.deg+1);
-    temps_initial = clock();
     Uint *tmp_coeffs = (Uint *) malloc(sizeof(Uint)*(deg+1));
+    temps_initial = clock();
     Uint *tmp_sub = (Uint *) malloc(sizeof(Uint)*(deg+1));
     Uint *res = vect_eval(P.coeffs, P.deg+1, tmp_coeffs, racines, 1, tmp_sub);
     temps_final = clock();
@@ -116,9 +116,8 @@ void test_vect_eval(Uint deg, Uint racine_p, int aff, int v) {
 int main() {
     //srand(time(NULL));
 
-    //compare_naif_karatsuba();
+    // compare_naif_karatsuba();
 
-    
     // Uint racine = 2;
     // Uint ordre_racine = (NB_P-1)/2;
     Uint racine = 11;
@@ -134,31 +133,31 @@ int main() {
     // }
 
 
-    // Uint nb_tours = 2;
-    // for (Uint i = 32768; i <= pow(2, 24); i = i*2) {
-    //     Uint deg = i-1;
-    //     Uint racine_principale = mod_pow(racine, ordre_racine/(deg+1));
-    //     for (Uint j = 0; j < nb_tours; j++) {
-    //         test_eval_malloc(deg, racine_principale, 0, 0);
-    //         test_eval(deg, racine_principale, 0, 0);
-    //         test_vect_eval(deg, racine_principale, 0, 0);
-    //     }
-    //     printf(">>>> Degré = %d <<<<\n", deg);
-    //     printf("=====> Temps moyen eval_malloc : %f\n", temps_tot_eval_malloc/nb_tours);
-    //     printf("=====> Temps moyen eval : %f\n", temps_tot_eval/nb_tours);
-    //     printf("=====> Temps moyen vect_eval : %f\n", temps_tot_vect_eval/nb_tours);
-    // }
+    Uint nb_tours = 4;
+    for (Uint i = 32768; i <= pow(2, 24); i = i*2) {
+        Uint deg = i-1;
+        Uint racine_principale = mod_pow(racine, ordre_racine/(deg+1));
+        for (Uint j = 0; j < nb_tours; j++) {
+            test_eval_malloc(deg, racine_principale, 0, 0);
+            test_eval(deg, racine_principale, 0, 0);
+            test_vect_eval(deg, racine_principale, 0, 0);
+        }
+        printf(">>>> Degré = %d <<<<\n", deg);
+        printf("=====> Temps moyen eval_malloc : %f\n", temps_tot_eval_malloc/nb_tours);
+        printf("=====> Temps moyen eval : %f\n", temps_tot_eval/nb_tours);
+        printf("=====> Temps moyen vect_eval : %f\n", temps_tot_vect_eval/nb_tours);
+    }
 
 
-    Poly P = gen_poly(deg);
-    Poly P_cpy = copy_poly(P, 0, P.deg);
-    Poly Q = gen_poly(deg);
-    Poly Q_cpy = copy_poly(Q, 0, Q.deg);
-    Poly R = FFT(P, Q);
+    // Poly P = gen_poly(deg);
+    // Poly P_cpy = copy_poly(P, 0, P.deg);
+    // Poly Q = gen_poly(deg);
+    // Poly Q_cpy = copy_poly(Q, 0, Q.deg);
+    // Poly R = FFT(P, Q);
     
-    afficher_poly(R);
-    Poly R_cpy = prod_poly_naif(P_cpy, Q_cpy);
-    afficher_poly(R_cpy);
+    // afficher_poly(R);
+    // Poly R_cpy = prod_poly_naif(P_cpy, Q_cpy);
+    // afficher_poly(R_cpy);
     
     printf("\n");
     return 0;
