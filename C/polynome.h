@@ -39,7 +39,9 @@ Uint mod_mult(Uint a, Uint b, Uint p);
 Uint inv(Uint a, Uint p);
 Uint *eval_malloc(Poly P, Uint *racines);
 Uint *eval(Uint *coeffs, Uint taille, Uint *tmp_coeffs, Uint *racines, Uint pas_rac);
-Uint *vect_eval(Uint *coeffs, Uint taille, Uint *tmp_coeffs, Uint *racines, Uint pas_rac, Uint *tmp_sub,
-            __m256i *u);
+Uint *vect_eval(Uint *coeffs, Uint taille, Uint *tmp_coeffs, Uint *racines, Uint pas_rac, Uint *tmp_sub);
+float *get_racines_inverse(Uint racine, Uint n);
+Uint *eval_inv(Uint *coeffs, Uint deg, Uint *tmp_coeffs, float *racines, Uint pas_rac);
+Poly FFT(Poly P, Poly Q);
 
 #endif

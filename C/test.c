@@ -56,16 +56,16 @@ void compare_naif_karatsuba() {
 void verif(Uint *res, Poly P, Uint *racines) {
     for (int i = 0; i < P.deg+1; i++) {
         int horner_x = horner(P, racines[i]);
-        // if (res[i] != horner_x) printf("i = %d, vect_eval[i] = %d, horner[i] = %d\n", i, res[i], horner_x);
+        if (res[i] != horner_x) printf("i = %d, eval[i] = %d, horner[i] = %d\n", i, res[i], horner_x);
         assert(res[i] == horner_x);
     }
     // afficher_poly(P);
 }
 
-void test_eval_malloc(int deg, Uint racine, int aff, int v) {
+void test_eval_malloc(int deg, Uint racine_p, int aff, int v) {
     Poly P = gen_poly(deg);
     Poly P_cpy = copy_poly(P, 0, P.deg);
-    Uint *racines = get_racines(racine, P.deg+1);
+    Uint *racines = get_racines(racine_p, P.deg+1);
     temps_initial = clock();
     Uint *res = eval_malloc(P, racines);
     temps_final = clock();
@@ -78,10 +78,10 @@ void test_eval_malloc(int deg, Uint racine, int aff, int v) {
     liberer_poly(P);
 }
 
-void test_eval(int deg, Uint racine, int aff, int v) {
+void test_eval(int deg, Uint racine_p, int aff, int v) {
     Poly P = gen_poly(deg);
     Poly P_cpy = copy_poly(P, 0, P.deg);
-    Uint *racines = get_racines(racine, P.deg+1);
+    Uint *racines = get_racines(racine_p, P.deg+1);
     temps_initial = clock();
     Uint *tmp_coeffs = (Uint *) malloc(sizeof(Uint)*(deg+1));
     Uint *res = eval(P.coeffs, P.deg+1, tmp_coeffs, racines, 1);
@@ -95,16 +95,14 @@ void test_eval(int deg, Uint racine, int aff, int v) {
     liberer_poly(P);
 }
 
-void test_vect_eval(Uint deg, Uint racine, int aff, int v) {
+void test_vect_eval(Uint deg, Uint racine_p, int aff, int v) {
     Poly P = gen_poly(deg);
     Poly P_cpy = copy_poly(P, 0, P.deg);
-    Uint *racines = get_racines(racine, P.deg+1);
-    //Uint *res = eval(P, racines); ancien eval()
+    Uint *racines = get_racines(racine_p, P.deg+1);
     temps_initial = clock();
     Uint *tmp_coeffs = (Uint *) malloc(sizeof(Uint)*(deg+1));
     Uint *tmp_sub = (Uint *) malloc(sizeof(Uint)*(deg+1));
-    __m256i u = _mm256_set_epi32(7, 6, 5, 4, 3, 2, 1, 0);
-    Uint *res = vect_eval(P.coeffs, P.deg+1, tmp_coeffs, racines, 1, tmp_sub, &u);
+    Uint *res = vect_eval(P.coeffs, P.deg+1, tmp_coeffs, racines, 1, tmp_sub);
     temps_final = clock();
     temps_cpu = ((double) (temps_final - temps_initial)) / CLOCKS_PER_SEC;
     temps_tot_vect_eval += temps_cpu;
@@ -116,39 +114,51 @@ void test_vect_eval(Uint deg, Uint racine, int aff, int v) {
 }
 
 int main() {
-    srand(time(NULL));
+    //srand(time(NULL));
 
+    //compare_naif_karatsuba();
+
+    
     // Uint racine = 2;
     // Uint ordre_racine = (NB_P-1)/2;
     Uint racine = 11;
     Uint ordre_racine = NB_P-1;
-
-    //compare_naif_karatsuba();
-
     // 65535, 16777215, 33554431, 67108863;
-    Uint deg = 16777215; //2^k - 1
-    Uint rac = mod_pow(racine, ordre_racine/(deg+1));
-    
+    Uint deg = 65535; //2^k - 1
+    Uint racine_principale = mod_pow(racine, ordre_racine/(deg+1));
+
+
     // for (int i = 0; i < 10; i++) {
-    //     test_eval(deg, rac);
-    //     test_vect_eval(deg, rac);
+    //     test_eval(deg, racine_principale, 1, 0);
+    //     test_vect_eval(deg, racine_principale, 1, 0);
     // }
 
-    Uint nb_tours = 2;
 
-    for (Uint i = 32768; i <= pow(2, 24); i = i*2) {
-        Uint deg = i-1;
-        Uint rac = mod_pow(racine, ordre_racine/(deg+1));
-        for (Uint j = 0; j < nb_tours; j++) {
-            test_eval_malloc(deg, rac, 0, 0);
-            test_eval(deg, rac, 0, 0);
-            test_vect_eval(deg, rac, 0, 0);
-        }
-        printf(">>>> Degré = %d <<<<\n", deg);
-        printf("=====> Temps moyen eval_malloc : %f\n", temps_tot_eval_malloc/nb_tours);
-        printf("=====> Temps moyen eval : %f\n", temps_tot_eval/nb_tours);
-        printf("=====> Temps moyen vect_eval : %f\n", temps_tot_vect_eval/nb_tours);
-    }
+    // Uint nb_tours = 2;
+    // for (Uint i = 32768; i <= pow(2, 24); i = i*2) {
+    //     Uint deg = i-1;
+    //     Uint racine_principale = mod_pow(racine, ordre_racine/(deg+1));
+    //     for (Uint j = 0; j < nb_tours; j++) {
+    //         test_eval_malloc(deg, racine_principale, 0, 0);
+    //         test_eval(deg, racine_principale, 0, 0);
+    //         test_vect_eval(deg, racine_principale, 0, 0);
+    //     }
+    //     printf(">>>> Degré = %d <<<<\n", deg);
+    //     printf("=====> Temps moyen eval_malloc : %f\n", temps_tot_eval_malloc/nb_tours);
+    //     printf("=====> Temps moyen eval : %f\n", temps_tot_eval/nb_tours);
+    //     printf("=====> Temps moyen vect_eval : %f\n", temps_tot_vect_eval/nb_tours);
+    // }
+
+
+    Poly P = gen_poly(deg);
+    Poly P_cpy = copy_poly(P, 0, P.deg);
+    Poly Q = gen_poly(deg);
+    Poly Q_cpy = copy_poly(Q, 0, Q.deg);
+    Poly R = FFT(P, Q);
+    
+    afficher_poly(R);
+    Poly R_cpy = prod_poly_naif(P_cpy, Q_cpy);
+    afficher_poly(R_cpy);
     
     printf("\n");
     return 0;

@@ -193,7 +193,6 @@ Uint *eval_malloc(Poly P, Uint *racines) {
     return res;
 }
 
-
 Uint *eval(Uint *coeffs, Uint deg, Uint *tmp_coeffs, Uint *racines, Uint pas_rac) {
     if (deg == 0) {
 		return &coeffs[0];
@@ -216,12 +215,8 @@ Uint *eval(Uint *coeffs, Uint deg, Uint *tmp_coeffs, Uint *racines, Uint pas_rac
     return coeffs;
 }
 
-Uint *vect_eval(Uint *coeffs, Uint taille, Uint *tmp_coeffs, Uint *racines, Uint pas_rac, Uint *tmp_sub, 
-        __m256i *u) {
-
-    if (taille == 1) {
-		return &coeffs[0];
-    }
+Uint *vect_eval(Uint *coeffs, Uint taille, Uint *tmp_coeffs, Uint *racines, Uint pas_rac, Uint *tmp_sub) {
+    if (taille == 1) return &coeffs[0];
 
     Uint tmp;
     Uint k = taille/2;
@@ -229,23 +224,8 @@ Uint *vect_eval(Uint *coeffs, Uint taille, Uint *tmp_coeffs, Uint *racines, Uint
     if (k >= 8) {
         for (Uint i = 0; i < k; i += 8) {
             vect_mod_add_sub_eval(&tmp_coeffs[i], &tmp_sub[i], &coeffs[i], &coeffs[i+k]);
-            vect_mod_mult_eval(&tmp_coeffs[i+k], &tmp_sub[i], racines, i, pas_rac, u);
+            vect_mod_mult_eval(&tmp_coeffs[i+k], &tmp_sub[i], racines, i, pas_rac);
         }
-        // printf("\n============ COEFFS ==============\n");
-        // for (Uint i = 0; i < k; i++) {
-        //     printf("%d %d\n", tmp_sub[i], racines[i*pas_rac]);
-        // }
-        // printf("\n============ VECT ===========\n");
-        // for (Uint i = 0; i < k; i++) {
-        //     printf("%d ", tmp_coeffs[i+k]);
-        // }
-        // printf("\n========== NORMAL =============\n");
-        // for (Uint i = 0; i < k; i++) {
-        //     tmp_coeffs[i+k] = mod_mult(tmp_sub[i], racines[i*pas_rac], NB_P);
-        // }
-        // for (Uint i = 0; i < k; i++) {
-        //     printf("%d ", tmp_coeffs[i+k]);
-        // }
     } else {
         for (Uint i = 0; i < k; i++) {
             tmp_coeffs[i] = mod_add(coeffs[i], coeffs[i+k], NB_P);
@@ -255,8 +235,8 @@ Uint *vect_eval(Uint *coeffs, Uint taille, Uint *tmp_coeffs, Uint *racines, Uint
     }
     
     tmp = pas_rac*2;
-    Uint *r0 = vect_eval(tmp_coeffs, k, coeffs, racines, tmp, tmp_sub, u);
-    Uint *r1 = vect_eval(&tmp_coeffs[k], k, &coeffs[k], racines, tmp, tmp_sub, u);
+    Uint *r0 = vect_eval(tmp_coeffs, k, coeffs, racines, tmp, tmp_sub);
+    Uint *r1 = vect_eval(&tmp_coeffs[k], k, &coeffs[k], racines, tmp, tmp_sub);
 
     for (Uint i = 0; i < k; i++) {
         tmp = 2*i;
@@ -264,4 +244,65 @@ Uint *vect_eval(Uint *coeffs, Uint taille, Uint *tmp_coeffs, Uint *racines, Uint
         coeffs[tmp+1] = r1[i];
     }
     return coeffs;
+}
+
+float *get_racines_inverse(Uint racine, Uint n) {
+    float *racines_inv = (float *) malloc(sizeof(float) * n);
+    float racine_inv = 1.0/racine;
+    racines_inv[0] = 1;
+    for (int i = 1; i < n; i++) {
+        racines_inv[i] = racines_inv[i-1] * racine_inv;
+    }
+    float n_inv = 1.0/n;
+    for (int i = 0; i < n; i++) {
+        racines_inv[i] = n_inv * racines_inv[i];
+    }
+    return racines_inv;
+}
+
+Uint *eval_inv(Uint *coeffs, Uint deg, Uint *tmp_coeffs, float *racines, Uint pas_rac) {
+    if (deg == 0) {
+		return &coeffs[0];
+    }
+
+    Uint k = (deg + 1)/2;
+    
+    Uint tmp;
+    for (int i = 0; i < k; i++) {
+        tmp_coeffs[i] = mod_add(coeffs[i], coeffs[i+k], NB_P);
+        tmp = mod_sub(coeffs[i], coeffs[i+k], NB_P);
+        tmp_coeffs[i+k] = mod_mult(tmp, racines[i*pas_rac], NB_P);
+    }
+    Uint *r0 = eval_inv(tmp_coeffs, k-1, coeffs, racines, pas_rac*2);
+    Uint *r1 = eval_inv(&tmp_coeffs[k], k-1, &coeffs[k], racines, pas_rac*2);
+    for (int i = 0; i < k; i++) {
+        coeffs[2*i] = r0[i];
+        coeffs[2*i+1] = r1[i];
+    }
+    return coeffs;
+}
+
+Poly FFT(Poly P, Poly Q) {
+    Uint racine = 11;
+    Uint ordre_racine = NB_P-1;
+    Uint deg = 16777215;
+    Uint n = deg+1;
+    Uint racine_principale = mod_pow(racine, ordre_racine/n);
+
+    Uint *racines = get_racines(racine_principale, n);
+
+    Uint *tmp_coeffs = (Uint *) malloc(sizeof(Uint)*n);
+    Uint *tmp_sub = (Uint *) malloc(sizeof(Uint)*n);
+    Uint *eval_P = vect_eval(P.coeffs, n, tmp_coeffs, racines, 1, tmp_sub);
+    Uint *eval_Q = vect_eval(Q.coeffs, n, tmp_coeffs, racines, 1, tmp_sub);
+
+    Uint *eval_R = (Uint *) malloc(sizeof(Uint)*n);
+    for (Uint i = 0; i < n; i += 8) {
+        vect_mod_mult(&eval_R[i], &eval_P[i], &eval_Q[i]);
+    }
+
+    float *racines_inv = get_racines_inverse(racine, n);
+    Poly R = creer_poly(P.deg + Q.deg);
+    R.coeffs = eval_inv(eval_R, n, tmp_coeffs, racines_inv, 1);
+    return R;
 }
