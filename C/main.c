@@ -102,7 +102,7 @@ int main() {
 
     int p = NB_P;
     //int coeff = 1073741824;
-    int taille = 800000;
+    int taille = 80000;
     Uint *t1 = (Uint *) malloc(sizeof(Uint)*taille);
     Uint *t2 = (Uint *) malloc(sizeof(Uint)*taille);
 
@@ -122,7 +122,7 @@ int main() {
     Uint *res = (Uint *) malloc(sizeof(Uint)*taille);
     Uint *resn = (Uint *) malloc(sizeof(Uint)*taille);
 
-    int repet = 1000;
+    int repet = 10000;
     test_add(res, resn, t1, t2, taille, p, repet);
     test_sub(res, resn, t1, t2, taille, p, repet);
     test_mult(res, resn, t1, t2, taille, repet);
