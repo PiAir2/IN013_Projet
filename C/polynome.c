@@ -110,7 +110,7 @@ Poly prod_poly_karatsuba(Poly P, Poly Q) {
 Uint horner(Poly P, Uint x) {
     Uint res = P.coeffs[P.deg];
     for (int i = P.deg-1; i >= 0; i--) {
-        res = mod_add(mod_mult(res, x), P.coeffs[i]);
+        res = mod_add(mod_mult(res, x, NB_P), P.coeffs[i], NB_P);
     }
     return res;
 }
@@ -125,38 +125,38 @@ Uint mod_pow(Uint x, Uint n) {
     Uint res;
     if (n % 2 == 0) {
         res = mod_pow(x, n/2);
-        return mod_mult(res, res);
+        return mod_mult(res, res, NB_P);
     }
     res = mod_pow(x, n-1);
-    return mod_mult(res, x);
+    return mod_mult(res, x, NB_P);
 }
 
 Uint *get_racines(Uint racine, Uint n) {
     Uint *racines = (Uint *) malloc(sizeof(Uint) * n);
     racines[0] = 1;
     for (int i = 1; i < n; i++) {
-        racines[i] = mod_mult(racines[i-1], racine);
+        racines[i] = mod_mult(racines[i-1], racine, NB_P);
     }
     return racines;
 }
 
-Uint mod_add(Uint a, Uint b) {
+Uint mod_add(Uint a, Uint b, Uint p) {
     Uint res = a + b;
-    if (res < NB_P) {
+    if (res < p) {
         return res;
     }
-    return res - NB_P;
+    return res - p;
 }
 
-Uint mod_sub(Uint a, Uint b) {
+Uint mod_sub(Uint a, Uint b, Uint p) {
     if (a < b) {
-        return NB_P - (b - a);
+        return p - (b - a);
     }
     return a - b;
 }
 
-Uint mod_mult(Uint a, Uint b) {
-    return ((unsigned long) a*b) % NB_P;
+Uint mod_mult(Uint a, Uint b, Uint p) {
+    return ((unsigned long) a*b) % p;
 }
 
 Uint *eval_malloc(Poly P, Uint *racines) {
@@ -172,9 +172,9 @@ Uint *eval_malloc(Poly P, Uint *racines) {
 	Uint tmp;
     Uint *racines_bis = (Uint *) malloc(sizeof(Uint) * k);
     for (int i = 0; i < k; i++) {
-        (R0.coeffs)[i] = mod_add((P.coeffs)[i], (P.coeffs)[i+k]);
-		tmp = mod_sub((P.coeffs)[i], (P.coeffs)[i+k]);
-        (R1.coeffs)[i] = mod_mult(tmp, racines[i]);
+        (R0.coeffs)[i] = mod_add((P.coeffs)[i], (P.coeffs)[i+k], NB_P);
+		tmp = mod_sub((P.coeffs)[i], (P.coeffs)[i+k], NB_P);
+        (R1.coeffs)[i] = mod_mult(tmp, racines[i], NB_P);
         racines_bis[i] = racines[2*i];
     }
     Uint *r0 = eval_malloc(R0, racines_bis);
@@ -187,16 +187,18 @@ Uint *eval_malloc(Poly P, Uint *racines) {
     return res;
 }
 
-Uint *eval(Uint *coeffs, Uint n, Uint *tmp_coeffs, Uint *racines, Uint pas_rac) {
-    if (n == 1) return &coeffs[0];
+Uint *eval(Uint *coeffs, Uint deg, Uint *tmp_coeffs, Uint *racines, Uint pas_rac) {
+    if (deg == 0) {
+		return &coeffs[0];
+    }
 
-    Uint k = n/2;
+    Uint k = (deg + 1)/2;
     
     Uint tmp;
     for (int i = 0; i < k; i++) {
-        tmp_coeffs[i] = mod_add(coeffs[i], coeffs[i+k]);
-        tmp = mod_sub(coeffs[i], coeffs[i+k]);
-        tmp_coeffs[i+k] = mod_mult(tmp, racines[i*pas_rac]);
+        tmp_coeffs[i] = mod_add(coeffs[i], coeffs[i+k], NB_P);
+        tmp = mod_sub(coeffs[i], coeffs[i+k], NB_P);
+        tmp_coeffs[i+k] = mod_mult(tmp, racines[i*pas_rac], NB_P);
     }
     Uint *r0 = eval(tmp_coeffs, k-1, coeffs, racines, pas_rac*2);
     Uint *r1 = eval(&tmp_coeffs[k], k-1, &coeffs[k], racines, pas_rac*2);
@@ -207,11 +209,11 @@ Uint *eval(Uint *coeffs, Uint n, Uint *tmp_coeffs, Uint *racines, Uint pas_rac) 
     return coeffs;
 }
 
-Uint *vect_eval(Uint *coeffs, Uint n, Uint *tmp_coeffs, Uint *racines, Uint pas_rac, Uint *tmp_sub) {
-    if (n == 1) return &coeffs[0];
+Uint *vect_eval(Uint *coeffs, Uint taille, Uint *tmp_coeffs, Uint *racines, Uint pas_rac, Uint *tmp_sub) {
+    if (taille == 1) return &coeffs[0];
 
     Uint tmp;
-    Uint k = n/2;
+    Uint k = taille/2;
     
     if (k >= 8) {
         for (Uint i = 0; i < k; i += 8) {
@@ -220,9 +222,9 @@ Uint *vect_eval(Uint *coeffs, Uint n, Uint *tmp_coeffs, Uint *racines, Uint pas_
         }
     } else {
         for (Uint i = 0; i < k; i++) {
-            tmp_coeffs[i] = mod_add(coeffs[i], coeffs[i+k]);
-            tmp = mod_sub(coeffs[i], coeffs[i+k]);
-            tmp_coeffs[i+k] = mod_mult(tmp, racines[i*pas_rac]);
+            tmp_coeffs[i] = mod_add(coeffs[i], coeffs[i+k], NB_P);
+            tmp = mod_sub(coeffs[i], coeffs[i+k], NB_P);
+            tmp_coeffs[i+k] = mod_mult(tmp, racines[i*pas_rac], NB_P);
         }
     }
     

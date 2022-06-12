@@ -48,7 +48,7 @@ void test_add(Uint *res, Uint *resn, Uint *t1, Uint *t2, Uint taille, Uint p, in
     //for (int i = 0; i < taille; i++) printf("%d ", resn[i]);
 
     // for (int i = 0; i < taille; i++) assert(res[i] == resn[i]);
-    printf("\nadd tmps norm : %f\n\n", temps_cpu);
+    printf("add tmps norm : %f\n", temps_cpu);
 }
 
 void test_sub(Uint *res, Uint *resn, Uint *t1, Uint *t2, Uint taille, Uint p, int repet) {
@@ -71,7 +71,7 @@ void test_sub(Uint *res, Uint *resn, Uint *t1, Uint *t2, Uint taille, Uint p, in
     //for (int i = 0; i < taille; i++) printf("%d ", resn[i]);
 
     // for (int i = 0; i < taille; i++) assert(res[i] == resn[i]);
-    printf("\nsub tmps norm : %f\n\n", temps_cpu);
+    printf("sub tmps norm : %f\n", temps_cpu);
 }
 
 void test_mult(Uint *res, Uint *resn, Uint *t1, Uint *t2, Uint taille, int repet) {
@@ -94,7 +94,7 @@ void test_mult(Uint *res, Uint *resn, Uint *t1, Uint *t2, Uint taille, int repet
     //for (int i = 0; i < taille; i++) printf("%d ", resn[i]);
 
     // for (int i = 0; i < taille; i++) assert(res[i] == resn[i]);
-    printf("\nmult tmps norm : %f\n\n", temps_cpu);
+    printf("mult tmps norm : %f\n", temps_cpu);
 }
 
 int main() {
@@ -102,7 +102,7 @@ int main() {
 
     int p = NB_P;
     //int coeff = 1073741824;
-    int taille = 80000;
+    int taille = 800000;
     Uint *t1 = (Uint *) malloc(sizeof(Uint)*taille);
     Uint *t2 = (Uint *) malloc(sizeof(Uint)*taille);
 
@@ -122,7 +122,8 @@ int main() {
     Uint *res = (Uint *) malloc(sizeof(Uint)*taille);
     Uint *resn = (Uint *) malloc(sizeof(Uint)*taille);
 
-    int repet = 10000;
+    int repet = 1;
+    test_add(res, resn, t1, t2, taille, p, repet);
     test_add(res, resn, t1, t2, taille, p, repet);
     test_sub(res, resn, t1, t2, taille, p, repet);
     test_mult(res, resn, t1, t2, taille, repet);

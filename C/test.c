@@ -116,53 +116,49 @@ void test_vect_eval(Uint deg, Uint racine_p, int aff, int v) {
 int main() {
     //srand(time(NULL));
 
-    // TESTS NAIF VS KARATSUBA
     // compare_naif_karatsuba();
 
     // Uint racine = 2;
     // Uint ordre_racine = (NB_P-1)/2;
-
     Uint racine = 11;
     Uint ordre_racine = NB_P-1;
-
     // 65535, 16777215, 33554431, 67108863;
     Uint deg = 65535; //2^k - 1
-    Uint n = deg+1;
-    Uint racine_principale = mod_pow(racine, ordre_racine/n);
+    Uint racine_principale = mod_pow(racine, ordre_racine/(deg+1));
 
-    // TESTS RAPIDES EVAL() VS VECT_EVAL()
+
     // for (int i = 0; i < 10; i++) {
     //     test_eval(deg, racine_principale, 1, 0);
     //     test_vect_eval(deg, racine_principale, 1, 0);
     // }
 
-    // TEST TEMPS MOYENS DES 3 VERSIONS DE EVAL
-    // Uint nb_tours = 4;
-    // for (Uint i = 32768; i <= pow(2, 24); i = i*2) {
-    //     Uint deg = i-1;
-    //     Uint racine_principale = mod_pow(racine, ordre_racine/(deg+1));
-    //     for (Uint j = 0; j < nb_tours; j++) {
-    //         test_eval_malloc(deg, racine_principale, 0, 0);
-    //         test_eval(deg, racine_principale, 0, 0);
-    //         test_vect_eval(deg, racine_principale, 0, 0);
-    //     }
-    //     printf(">>>> Degré = %d <<<<\n", deg);
-    //     printf("=====> Temps moyen eval_malloc : %f\n", temps_tot_eval_malloc/nb_tours);
-    //     printf("=====> Temps moyen eval : %f\n", temps_tot_eval/nb_tours);
-    //     printf("=====> Temps moyen vect_eval : %f\n", temps_tot_vect_eval/nb_tours);
-    // }
 
+    Uint nb_tours = 4;
+    for (Uint i = 32768; i <= pow(2, 24); i = i*2) {
+        Uint deg = i-1;
+        Uint racine_principale = mod_pow(racine, ordre_racine/(deg+1));
+        for (Uint j = 0; j < nb_tours; j++) {
+            test_eval_malloc(deg, racine_principale, 0, 0);
+            test_eval(deg, racine_principale, 0, 0);
+            test_vect_eval(deg, racine_principale, 0, 0);
+        }
+        printf(">>>> Degré = %d <<<<\n", deg);
+        printf("=====> Temps moyen eval_malloc : %f\n", temps_tot_eval_malloc/nb_tours);
+        printf("=====> Temps moyen eval : %f\n", temps_tot_eval/nb_tours);
+        printf("=====> Temps moyen vect_eval : %f\n", temps_tot_vect_eval/nb_tours);
+    }
 
     // TEST VALIDITE FFT
-    Poly P = gen_poly(n/2-1);
-    Poly P_cpy = copy_poly(P, 0, P.deg);
-    Poly Q = gen_poly(n/2-1);
-    Poly Q_cpy = copy_poly(Q, 0, Q.deg);
-    Poly R = FFT(P, Q, n, racine_principale);
+    // Poly P = gen_poly(n/2-1);
+    // Poly P_cpy = copy_poly(P, 0, P.deg);
+    // Poly Q = gen_poly(n/2-1);
+    // Poly Q_cpy = copy_poly(Q, 0, Q.deg);
+    // Poly R = FFT(P, Q, n, racine_principale);
     
-    afficher_poly(R);
-    Poly R_cpy = prod_poly_naif(P_cpy, Q_cpy);
-    afficher_poly(R_cpy);
+
+    // afficher_poly(R);
+    // Poly R_cpy = prod_poly_naif(P_cpy, Q_cpy);
+    // afficher_poly(R_cpy);
 
 
     // TESTS INVERSE RACINE PRINCIPALE
