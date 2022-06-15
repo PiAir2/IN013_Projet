@@ -1,0 +1,22 @@
+\begin{thebibliography}{1}
+
+\bibitem{AECF}
+Bostan A., Chyzak F., Giusti M., Lebreton R., Lecerf G., Salvy B., and Schost
+  E.
+\newblock Algorithmes efficaces en calcul formel.
+\newblock Technical report, Université Paris Diderot and Écoles Normales
+  Supérieures de Cachan et de Paris and École Polytechnique, décembre 2018.
+
+\bibitem{Karatsuba}
+Werner B. and Schost E.
+\newblock Informatique tronc commun td2 récursivité 2 : l'algorithme de
+  karatsuba.
+\newblock Technical report, École Polytechnique, novembre 1999.
+
+\bibitem{SIMD}
+Van Der~Hoeven J., Lecerf G., and Quintin G.
+\newblock Modular simd arithmetic in mathemagix.
+\newblock Technical report, CNRS and École Polytechnique and Laboratoire LIX
+  Universite de Limoges and Laboratoire XLIM, août 2016.
+
+\end{thebibliography}

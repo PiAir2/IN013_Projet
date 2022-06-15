@@ -93,3 +93,28 @@ void vect_mod_mult_eval(Uint *res, Uint *tab1, Uint *tab2, Uint i, Uint pas) {
     __m256i result = _mm256_min_epu32(d, _mm256_sub_epi32(d, p));
     _mm256_storeu_si256((__m256i *) res, result);
 }
+
+void vect_mod_div_n(Uint *tab, Uint n) {
+    Uint n_inv = inv(n);
+    __m256i y = _mm256_set1_epi32(n_inv);
+    for (int i = 0; i < n; i += 8) {
+        __m256i x = _mm256_loadu_si256((__m256i *) &tab[i]);
+        __m256i p = _mm256_set1_epi32(NB_P);
+        __m256i q = _mm256_set1_epi32(NB_Q);
+
+        __m256i a_low = _mm256_mul_epu32(x, y);
+        __m256i b_low = _mm256_srli_epi64(a_low, NB_S);
+        __m256i c_low = _mm256_srli_epi64(_mm256_mul_epu32(b_low, q), NB_T);
+
+        __m256i a_high = _mm256_mul_epu32(_mm256_srli_si256(x, 4), _mm256_srli_si256(y, 4));
+        __m256i b_high = _mm256_srli_epi64(a_high, NB_S);
+        __m256i c_high = _mm256_srli_epi64(_mm256_mul_epu32(b_high, q), NB_T);
+
+        __m256i d_low = _mm256_sub_epi64(a_low, _mm256_mul_epu32(c_low, p));
+        __m256i d_high = _mm256_sub_epi64(a_high, _mm256_mul_epu32(c_high, p));
+        __m256i d = _mm256_or_si256(d_low, _mm256_slli_si256(d_high, 4));
+
+        __m256i result = _mm256_min_epu32(d, _mm256_sub_epi32(d, p));
+        _mm256_storeu_si256((__m256i *) &tab[i], result);
+    }
+}

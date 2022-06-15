@@ -21,7 +21,7 @@ typedef struct _Poly {
     Uint deg;
 } Poly;
 
-void afficher_poly(Poly P);
+void afficher_poly(Poly P, Uint max);
 Poly gen_poly(Uint deg);
 void liberer_poly(Poly P);
 int compare_poly(Poly P, Poly Q);
@@ -33,13 +33,16 @@ Poly prod_poly_karatsuba(Poly P, Poly Q);
 Uint mod_pow(Uint x, Uint n);
 Uint horner(Poly P, Uint x);
 Uint *get_racines(Uint racine, Uint n);
-Uint mod_add(Uint a, Uint b, Uint p);
-Uint mod_sub(Uint a, Uint b, Uint p);
-Uint mod_mult(Uint a, Uint b, Uint p);
+Uint mod_add(Uint a, Uint b);
+Uint mod_sub(Uint a, Uint b);
+Uint mod_mult(Uint a, Uint b);
 Uint *eval_malloc(Poly P, Uint *racines);
-Uint *eval(Uint *coeffs, Uint taille, Uint *tmp_coeffs, Uint *racines, Uint pas_rac);
-Uint *vect_eval(Uint *coeffs, Uint taille, Uint *tmp_coeffs, Uint *racines, Uint pas_rac, Uint *tmp_sub);
+Uint *eval(Uint *coeffs, Uint n, Uint *tmp_coeffs, Uint *racines, Uint pas_rac);
+Uint *vect_eval(Uint *coeffs, Uint n, Uint *tmp_coeffs, Uint *racines, Uint pas_rac, Uint *tmp_sub);
 Uint inv(Uint a);
+Poly creer_poly_fft(Uint deg, Uint n);
+Poly gen_poly_fft(Uint deg, Uint n);
 Poly FFT(Poly P, Poly Q, Uint n, Uint racine_principale);
+Poly vect_FFT(Poly P, Poly Q, Uint n, Uint racine_principale);
 
 #endif
