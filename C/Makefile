@@ -1,5 +1,5 @@
 # commenter/decommenter la bonne ligne pour activer/desactiver le profiler
-#PROFILER=-pg
+# PROFILER=-pg
 PROFILER=
 
 CFLAGS=-mavx2 -Wall -O2 -c $(PROFILER)
