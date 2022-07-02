@@ -102,7 +102,7 @@ int main() {
 
     int p = NB_P;
     //int coeff = 1073741824;
-    int taille = 80000;
+    int taille = 8000000;
     Uint *t1 = (Uint *) malloc(sizeof(Uint)*taille);
     Uint *t2 = (Uint *) malloc(sizeof(Uint)*taille);
 

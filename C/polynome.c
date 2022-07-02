@@ -149,25 +149,6 @@ Uint *get_racines(Uint racine, Uint n) {
     return racines;
 }
 
-Uint mod_add(Uint a, Uint b) {
-    Uint res = a + b;
-    if (res < NB_P) {
-        return res;
-    }
-    return res - NB_P;
-}
-
-Uint mod_sub(Uint a, Uint b) {
-    if (a < b) {
-        return NB_P - (b - a);
-    }
-    return a - b;
-}
-
-Uint mod_mult(Uint a, Uint b) {
-    return ((unsigned long) a*b) % NB_P;
-}
-
 Uint *eval_malloc(Poly P, Uint *racines) {
     if (P.deg == 0) {
         Uint *tmp = (Uint *) malloc(sizeof(Uint));
@@ -238,6 +219,41 @@ Uint *vect_eval(Uint *coeffs, Uint n, Uint *tmp_coeffs, Uint *racines, Uint pas_
     tmp = pas_rac*2;
     Uint *r0 = vect_eval(tmp_coeffs, k, coeffs, racines, tmp, tmp_sub);
     Uint *r1 = vect_eval(&tmp_coeffs[k], k, &coeffs[k], racines, tmp, tmp_sub);
+
+    for (Uint i = 0; i < k; i++) {
+        tmp = 2*i;
+        coeffs[tmp] = r0[i];
+        coeffs[tmp+1] = r1[i];
+    }
+    return coeffs;
+}
+
+Uint *vect_eval_V2(Uint *coeffs, Uint n, Uint *tmp_coeffs, Uint *racines, Uint *tmp_sub) {
+    if (n == 1) return &coeffs[0];
+
+    Uint tmp;
+    Uint k = n/2;
+    
+    if (k >= 8) {
+        for (Uint i = 0; i < k; i += 8) {
+            vect_mod_add_sub_eval(&tmp_coeffs[i], &tmp_sub[i], &coeffs[i], &coeffs[i+k]);
+            vect_mod_mult(&tmp_coeffs[i+k], &tmp_sub[i], &racines[i]);
+        }
+    } else {
+        for (Uint i = 0; i < k; i++) {
+            tmp_coeffs[i] = mod_add(coeffs[i], coeffs[i+k]);
+            tmp = mod_sub(coeffs[i], coeffs[i+k]);
+            tmp_coeffs[i+k] = mod_mult(tmp, racines[i]);
+        }
+    }
+
+    Uint *racines_bis = (Uint *) malloc(sizeof(Uint) * k);
+    for (Uint i = 0; i < k; i++) {
+        racines_bis[i] = racines[2*i];
+    }
+    
+    Uint *r0 = vect_eval_V2(tmp_coeffs, k, coeffs, racines_bis, tmp_sub);
+    Uint *r1 = vect_eval_V2(&tmp_coeffs[k], k, &coeffs[k], racines_bis, tmp_sub);
 
     for (Uint i = 0; i < k; i++) {
         tmp = 2*i;
@@ -341,6 +357,33 @@ Poly vect_FFT(Poly P, Poly Q, Uint n, Uint racine_principale) {
     Uint *racines_inv = get_racines(racine_p_inv, n);
     Poly R = creer_poly_fft(P.deg + Q.deg, n);
     R.coeffs = vect_eval(eval_R, n, tmp_coeffs, racines_inv, 1, tmp_sub);
+    vect_mod_div_n(R.coeffs, n);
+
+    return R;
+}
+
+Poly vect_FFT_V2(Poly P, Poly Q, Uint n, Uint racine_principale) {
+    
+    // Étape 1 : Précalcul
+    Uint *racines = get_racines(racine_principale, n);
+
+    // Étape 2 : Évaluation de P et Q
+    Uint *tmp_coeffs = (Uint *) malloc(sizeof(Uint)*n);
+    Uint *tmp_sub = (Uint *) malloc(sizeof(Uint)*n);
+    Uint *eval_P = vect_eval_V2(P.coeffs, n, tmp_coeffs, racines, tmp_sub);
+    Uint *eval_Q = vect_eval_V2(Q.coeffs, n, tmp_coeffs, racines, tmp_sub);
+
+    // Étape 3 : Produit point à point
+    Uint *eval_R = (Uint *) malloc(sizeof(Uint)*n);
+    for (Uint i = 0; i < n; i += 8) {
+        vect_mod_mult(&eval_R[i], &eval_P[i], &eval_Q[i]);
+    }
+
+    // Étape 4 : Interpolation
+    Uint racine_p_inv = inv(racine_principale);
+    Uint *racines_inv = get_racines(racine_p_inv, n);
+    Poly R = creer_poly_fft(P.deg + Q.deg, n);
+    R.coeffs = vect_eval_V2(eval_R, n, tmp_coeffs, racines_inv, tmp_sub);
     vect_mod_div_n(R.coeffs, n);
 
     return R;
