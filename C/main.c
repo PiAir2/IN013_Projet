@@ -38,7 +38,7 @@ void test_add(Uint *res, Uint *resn, Uint *t1, Uint *t2, Uint taille, Uint p, in
     temps_final = clock();
     temps_cpu = ((double) (temps_final - temps_initial)) / CLOCKS_PER_SEC;
     //for (int i = 0; i < taille; i++) printf("%d ", res[i]);
-    printf("\nadd tmps vect : %f\n", temps_cpu);
+    printf("add tmps vect : %f\n", temps_cpu);
     temps_initial = clock();
     for (int i = 0; i < repet; i++) {
         add_norm(resn, t1, t2, taille, p);
@@ -48,7 +48,7 @@ void test_add(Uint *res, Uint *resn, Uint *t1, Uint *t2, Uint taille, Uint p, in
     //for (int i = 0; i < taille; i++) printf("%d ", resn[i]);
 
     // for (int i = 0; i < taille; i++) assert(res[i] == resn[i]);
-    printf("\nadd tmps norm : %f\n\n", temps_cpu);
+    printf("add tmps norm : %f\n\n", temps_cpu);
 }
 
 void test_sub(Uint *res, Uint *resn, Uint *t1, Uint *t2, Uint taille, Uint p, int repet) {
@@ -61,7 +61,7 @@ void test_sub(Uint *res, Uint *resn, Uint *t1, Uint *t2, Uint taille, Uint p, in
     temps_final = clock();
     temps_cpu = ((double) (temps_final - temps_initial)) / CLOCKS_PER_SEC;
     //for (int i = 0; i < taille; i++) printf("%d ", res[i]);
-    printf("\nsub tmps vect : %f\n", temps_cpu);
+    printf("sub tmps vect : %f\n", temps_cpu);
     temps_initial = clock();
     for (int i = 0; i < repet; i++) {
         sub_norm(resn, t1, t2, taille, p);
@@ -71,7 +71,7 @@ void test_sub(Uint *res, Uint *resn, Uint *t1, Uint *t2, Uint taille, Uint p, in
     //for (int i = 0; i < taille; i++) printf("%d ", resn[i]);
 
     // for (int i = 0; i < taille; i++) assert(res[i] == resn[i]);
-    printf("\nsub tmps norm : %f\n\n", temps_cpu);
+    printf("sub tmps norm : %f\n\n", temps_cpu);
 }
 
 void test_mult(Uint *res, Uint *resn, Uint *t1, Uint *t2, Uint taille, int repet) {
@@ -84,7 +84,7 @@ void test_mult(Uint *res, Uint *resn, Uint *t1, Uint *t2, Uint taille, int repet
     temps_final = clock();
     temps_cpu = ((double) (temps_final - temps_initial)) / CLOCKS_PER_SEC;
     //for (int i = 0; i < taille; i++) printf("%d ", res[i]);
-    printf("\nmult tmps vect : %f\n", temps_cpu);
+    printf("mult tmps vect : %f\n", temps_cpu);
     temps_initial = clock();
     for (int i = 0; i < repet; i++) {
         mult_norm(resn, t1, t2, taille, NB_P);
@@ -94,7 +94,7 @@ void test_mult(Uint *res, Uint *resn, Uint *t1, Uint *t2, Uint taille, int repet
     //for (int i = 0; i < taille; i++) printf("%d ", resn[i]);
 
     // for (int i = 0; i < taille; i++) assert(res[i] == resn[i]);
-    printf("\nmult tmps norm : %f\n\n", temps_cpu);
+    printf("mult tmps norm : %f\n\n", temps_cpu);
 }
 
 int main() {
@@ -102,7 +102,7 @@ int main() {
 
     int p = NB_P;
     //int coeff = 1073741824;
-    int taille = 80000;
+    int taille = 8000000;
     Uint *t1 = (Uint *) malloc(sizeof(Uint)*taille);
     Uint *t2 = (Uint *) malloc(sizeof(Uint)*taille);
 
@@ -123,7 +123,7 @@ int main() {
     Uint *resn = (Uint *) malloc(sizeof(Uint)*taille);
 
     int repet = 1;
-    test_add(res, resn, t1, t2, taille, p, repet); // echauffement du CPU.
+    test_add(res, resn, t1, t2, taille, p, repet); // échauffement du CPU.
 
     test_add(res, resn, t1, t2, taille, p, repet);
     test_sub(res, resn, t1, t2, taille, p, repet);
@@ -133,6 +133,5 @@ int main() {
     free(t2);
     free(res);
     free(resn);
-    printf("\n");
     return 0;
 }
