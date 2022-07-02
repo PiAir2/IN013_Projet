@@ -50,20 +50,20 @@ void vect_mod_mult(Uint *res, Uint *tab1, Uint *tab2) {
 }
 
 void vect_mod_add_sub_eval(Uint *res_add, Uint *res_sub, Uint *tab1, Uint *tab2) {
-    __m256i x, result;
-    __m256i p = _mm256_set1_epi32(NB_P);
-    __m256i a = _mm256_loadu_si256((__m256i *) tab1);
-    __m256i b = _mm256_loadu_si256((__m256i *) tab2);
+    __m256i x, result; // initialisation de variables
+    __m256i p = _mm256_set1_epi32(NB_P); // chargement du tableau avec que des p
+    __m256i a = _mm256_loadu_si256((__m256i *) tab1); // chargement de 8 cases successives de tab1
+    __m256i b = _mm256_loadu_si256((__m256i *) tab2); // chargement de 8 cases successives de tab2
 
-    // add
-    x = _mm256_add_epi32(a, b);
-    result = _mm256_min_epu32(x, _mm256_sub_epi32(x, p));
-    _mm256_storeu_si256((__m256i *) res_add, result);
+    // addition modulo p
+    x = _mm256_add_epi32(a, b); // x = a + b
+    result = _mm256_min_epu32(x, _mm256_sub_epi32(x, p)); // min_pos(x, x - p) = (a+b)%p
+    _mm256_storeu_si256((__m256i *) res_add, result); // stockage du résultat dans res_add
 
-    // sub
-    x = _mm256_sub_epi32(a, b);
-    result = _mm256_min_epu32(x, _mm256_add_epi32(x, p));
-    _mm256_storeu_si256((__m256i *) res_sub, result);
+    // soustraction modulo p
+    x = _mm256_sub_epi32(a, b); // x = a - b
+    result = _mm256_min_epu32(x, _mm256_add_epi32(x, p)); // min_pos(x, x + p) = (a-b)%p
+    _mm256_storeu_si256((__m256i *) res_sub, result); // stockage du résultat dans res_sub
 }
 
 void vect_mod_mult_eval(Uint *res, Uint *tab1, Uint *tab2, Uint i, Uint pas) {

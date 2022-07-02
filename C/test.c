@@ -123,14 +123,38 @@ void test_vect_eval(Uint deg, Uint racine_p, int aff, int v) {
     free(tmp_sub);
 }
 
+void test_vect_eval_V2(Uint deg, Uint racine_p, int aff, int v) {
+    Poly P = gen_poly(deg);
+    Poly P_cpy = copy_poly(P, 0, P.deg);
+    Uint *racines = get_racines(racine_p, P.deg+1);
+    Uint *tmp_coeffs = (Uint *) malloc(sizeof(Uint)*(deg+1));
+    Uint *tmp_sub = (Uint *) malloc(sizeof(Uint)*(deg+1));
+    temps_initial = clock();
+    Uint *res = vect_eval_V2(P.coeffs, P.deg+1, tmp_coeffs, racines, tmp_sub);
+    temps_final = clock();
+    temps_cpu = ((double) (temps_final - temps_initial)) / CLOCKS_PER_SEC;
+    temps_tot_vect_eval += temps_cpu;
+
+    if (aff == 1) printf("Degré = %d | Temps vect_eval_V2() = %f\n", P.deg, temps_cpu);
+    if (v == 1) verif(res, P_cpy, racines);
+
+    liberer_poly(P);
+    liberer_poly(P_cpy);
+    free(racines);
+    free(tmp_coeffs);
+    free(tmp_sub);
+}
+
 void compare_ffts(Uint racine, Uint ordre_racine, int v) {
     for (int n = 32768; n <= pow(2, MAX_PUISSANCE); n *= 2) {
         Uint racine_principale = mod_pow(racine, ordre_racine/n);
 
         Poly P = gen_poly_fft(n/2-1, n);
         Poly vect_P = copy_poly(P, 0, n);
+        Poly vect_P_V2 = copy_poly(P, 0, n);
         Poly Q = gen_poly_fft(n/2-1, n);
         Poly vect_Q = copy_poly(Q, 0, n);
+        Poly vect_Q_V2 = copy_poly(Q, 0, n);
 
         temps_initial = clock();
         Poly R = FFT(P, Q, n, racine_principale);
@@ -144,7 +168,13 @@ void compare_ffts(Uint racine, Uint ordre_racine, int v) {
         temps_cpu = ((double) (temps_final - temps_initial)) / CLOCKS_PER_SEC;
         printf("n = %d, temps vect_FFT() : %f\n", n, temps_cpu);
 
-        if (v == 1) assert(compare_poly(R, vect_R));
+        temps_initial = clock();
+        Poly vect_R_V2 = vect_FFT_V2(vect_P_V2, vect_Q_V2, n, racine_principale);
+        temps_final = clock();
+        temps_cpu = ((double) (temps_final - temps_initial)) / CLOCKS_PER_SEC;
+        printf("n = %d, temps vect_FFT_V2() : %f\n", n, temps_cpu);
+
+        if (v == 1) assert(compare_poly(R, vect_R) && compare_poly(vect_R, vect_R_V2));
 
         printf("\n");
     }
@@ -158,10 +188,12 @@ void compare_TOUT(Uint racine, Uint ordre_racine, int v) {
         Poly P_naif = copy_poly(P_fft, 0, P_fft.deg);
         Poly P_kara = copy_poly(P_fft, 0, P_fft.deg);
         Poly P_vect = copy_poly(P_fft, 0, n);
+        Poly P_vect_V2 = copy_poly(P_fft, 0, n);
         Poly Q_fft = gen_poly_fft(n/2-1, n);
         Poly Q_naif = copy_poly(Q_fft, 0, Q_fft.deg);
         Poly Q_kara = copy_poly(Q_fft, 0, Q_fft.deg);
         Poly Q_vect = copy_poly(Q_fft, 0, n);
+        Poly Q_vect_V2 = copy_poly(Q_fft, 0, n);
 
         temps_initial = clock();
         Poly R_naif = prod_poly_naif(P_naif, Q_naif);
@@ -187,10 +219,17 @@ void compare_TOUT(Uint racine, Uint ordre_racine, int v) {
         temps_cpu = ((double) (temps_final - temps_initial)) / CLOCKS_PER_SEC;
         printf("n = %d, temps vect_FFT() : %f\n", n, temps_cpu);
 
+        temps_initial = clock();
+        Poly R_vect_V2 = vect_FFT_V2(P_vect_V2, Q_vect_V2, n, racine_principale);
+        temps_final = clock();
+        temps_cpu = ((double) (temps_final - temps_initial)) / CLOCKS_PER_SEC;
+        printf("n = %d, temps vect_FFT_V2() : %f\n", n, temps_cpu);
+
         if (v == 1) {
             assert(compare_poly(R_naif, R_kara));
             assert(compare_poly(R_kara, R_fft));
             assert(compare_poly(R_fft, R_vect));
+            assert(compare_poly(R_vect, R_vect_V2));
         }
         printf("\n");
     }
@@ -201,8 +240,8 @@ int main() {
 
     printf("Saisir un numéro : \n");
     printf("0 : Tests Naif vs Karatsuba\n");
-    printf("1 : Tests rapides eval() vs vect_eval()\n");
-    printf("2 : Tests des temps moyens de eval_malloc(), eval(), vect_eval()\n");
+    printf("1 : Tests des temps moyens de eval_malloc() vs eval()\n");
+    printf("2 : Tests rapides eval() vs vect_eval()\n");
     printf("3 : Tests validité FFT (compraison résultats de Naif et de FFT)\n");
     printf("4 : Tests FFT() vs vect_FFT()\n");
     printf("5 : Tests comparaison de toutes les fonctions\n");
@@ -228,27 +267,29 @@ int main() {
         compare_naif_karatsuba(0);
     }
 
-    if (num == 1) { // TESTS RAPIDES EVAL() VS VECT_EVAL()
-        for (int i = 0; i < 10; i++) {
-            test_eval(deg, racine_principale, 1, 0);
-            test_vect_eval(deg, racine_principale, 1, 0);
-        }
-    }
-
-    if (num == 2) { // TEST TEMPS MOYENS DES 3 VERSIONS DE EVAL
-        Uint nb_tours = 4;
+    if (num == 1) { // TESTS EVAL_MALLOC() VS EVAL()
+        Uint nb_tours = 1;
         for (Uint i = 32768; i <= pow(2, MAX_PUISSANCE); i = i*2) {
             Uint deg = i-1;
             Uint racine_principale = mod_pow(racine, ordre_racine/(deg+1));
             for (Uint j = 0; j < nb_tours; j++) {
                 test_eval_malloc(deg, racine_principale, 0, 0);
                 test_eval(deg, racine_principale, 0, 0);
-                test_vect_eval(deg, racine_principale, 0, 0);
             }
             printf(">>>> Degré = %d <<<<\n", deg);
             printf("=====> Temps moyen eval_malloc : %f\n", temps_tot_eval_malloc/nb_tours);
             printf("=====> Temps moyen eval : %f\n", temps_tot_eval/nb_tours);
-            printf("=====> Temps moyen vect_eval : %f\n", temps_tot_vect_eval/nb_tours);
+        }
+    }
+
+    if (num == 2) { // TESTS RAPIDES EVAL() VS VECT_EVAL()
+        for (Uint i = 32768; i <= pow(2, MAX_PUISSANCE); i = i*2) {
+            Uint deg = i-1;
+            Uint racine_principale = mod_pow(racine, ordre_racine/(deg+1));
+            test_eval(deg, racine_principale, 1, 0);
+            test_vect_eval(deg, racine_principale, 1, 0);
+            test_vect_eval_V2(deg, racine_principale, 1, 0);
+            printf("\n");
         }
     }
 
@@ -256,13 +297,17 @@ int main() {
         Poly P = gen_poly_fft(n/2-1, n);
         Poly P_cpy = copy_poly(P, 0, P.deg);
         Poly vect_P = copy_poly(P, 0, n);
+        Poly vect_P_V2 = copy_poly(P, 0, n);
         Poly Q = gen_poly_fft(n/2-1, n);
         Poly Q_cpy = copy_poly(Q, 0, Q.deg);
         Poly vect_Q = copy_poly(Q, 0, n);
+        Poly vect_Q_V2 = copy_poly(Q, 0, n);
         Poly R = FFT(P, Q, n, racine_principale);
         Poly vect_R = vect_FFT(vect_P, vect_Q, n, racine_principale);
+        Poly vect_R_V2 = vect_FFT_V2(vect_P_V2, vect_Q_V2, n, racine_principale);
         Poly R_cpy = prod_poly_naif(P_cpy, Q_cpy);
-        if (compare_poly(R, R_cpy) == 1 && compare_poly(vect_R, R_cpy) == 1) {
+        if (compare_poly(R, R_cpy) == 1 && compare_poly(vect_R, R_cpy) == 1 
+            && compare_poly(vect_R_V2, R_cpy) == 1) {
             printf("OK\n");
         } else {
             printf("PAS OK\n");
