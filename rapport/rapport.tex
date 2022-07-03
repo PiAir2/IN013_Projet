@@ -151,7 +151,7 @@ Pour commencer, nous avons réalisé un algorithme simple (l'algorithme naïf) d
 où $p_0,\dots,p_n\ et\ q_0,\dots,q_n$ sont les coefficients respectifs de $P$ et $Q$. Ici, à chaque tour de boucle, il faut appliquer un modulo p sur les opérations de produits et de sommes pour que les coefficients restent dans $\mathbb{Z}/p\mathbb{Z}$.\\
 De par sa simplicité, cet algorithme nous permet de vérifier les résultats de nos futurs algorithmes plus performants mais plus complexes à implémenter.\\
 \indent Par la suite, grâce aux différentes sources 
-trouvées, nous avons implémenté l'algorithme de Karatsuba. Nous avons appliqué l'algorithme se trouvant sur la source \cite{Karatsuba} tout en mettant les modulos au bon endroit, c'est-à-dire à chaque fois qu'on fait une opération $+$, $-$, $*$ ...
+trouvées, nous avons implémenté l'algorithme de Karatsuba. Nous avons appliqué l'algorithme se trouvant sur la source \cite{Karatsuba} tout en mettant les modulos au bon endroit, c'est-à-dire à chaque fois que nous faisons une opération $+$, $-$, $*$ ...
 
 \subsection{Comparaison - Naïf/Karatsuba}
 Afin de pouvoir comparer nos différents algorithmes, nous allons parler dans toute la suite de notre rapport de complexité algorithmique, cette complexité est calculée en fonction du nombre d'opérations dans $\mathbb{Z}/p\mathbb{Z}$ effectuée par nos algorithmes. \\
@@ -411,7 +411,7 @@ De plus, $u$ est l'inverse de $a$ sur $\mathbb{Z}/p\mathbb{Z}$. En effet, suppos
 $au+pv = (au+pv)\%p = au\%p + pv\%p = au\%p = 1$. \\ 
 C'est-à-dire que $au = 1$ sur $\mathbb{Z}/p\mathbb{Z}$, $u$ est donc bien l'inverse de $a$ par définition de l'inverse. \\
 Enfin, $u$ étant un entier relatif, il peut être négatif, nous devons donc ajouter $p$ dans ce cas. \\
-\indent En sachant tout cela, nous avons pu implémenter l'algorithme grâce au pseudo-code donné sur ce \href{https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#techs=AVX,AVX2}{\underline{\color{blue}site}} \\
+\indent En sachant tout cela, nous avons pu implémenter l'algorithme grâce au pseudo-code donné sur ce \href{https://www.dcode.fr/identite-bezout}{\underline{\color{blue}site}} \\
 \indent Avec cet algorithme, nous avons alors pu terminer l'étape 4. Par ailleurs, pour l'étape de division par $n$, cela était le même concepte que pour l'étape 3 de la FFT, nous avons donc pu la vectoriser aussi. Ceci conclut donc l'implémentation de la multiplication de polynômes par FFT. \\
 \indent Après avoir vérifié que notre multiplication par la FFT (sans ou avec AVX2) nous donnait des résultats correctes en les confrontant à ceux obtenus avec l'algorithme naïf, nous avons comparé les temps obtenus avec et sans AVX2 :
 
@@ -460,7 +460,7 @@ $2^{24}$ & 7.108149 & 2.939824 \\
 \end{center}
 {\captionof{table}{Temps de la multiplication par FFT sans AVX2 et avec AVX2 (Deuxième version)}}
 \ \\
-\indent Nous voyons que cette fois-ci nous avions plus d'un facteur 2 pour de gros degrés. COMPARER AVEC NTL
+\indent Nous voyons que cette fois-ci nous avions plus d'un facteur 2 pour de gros degrés. COMPARER AVEC NTL XXXXXXXXXXX
 
 \section{Temps Finaux}
 
