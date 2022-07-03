@@ -9,7 +9,7 @@ void vect_mod_add(Uint *res1, Uint *tab1, Uint *tab2) {
     __m256i b = _mm256_loadu_si256((__m256i *) tab2);
     __m256i x = _mm256_add_epi32(a, b);
     __m256i result = _mm256_min_epu32(x, _mm256_sub_epi32(x, p));
-    // __m256i y = _mm256_sub_epi32(x, p);
+    // __m256i y = _mm256_sub_epi32(x, p); première version avec les mask, plus lente
     // __m256i mask = _mm256_cmpgt_epi32(p, x);
     // __m256i result = _mm256_blendv_epi8(y, x, mask);
     _mm256_storeu_si256((__m256i *) res1, result);
@@ -21,7 +21,7 @@ void vect_mod_sub(Uint *res1, Uint *tab1, Uint *tab2) {
     __m256i b = _mm256_loadu_si256((__m256i *) tab2);
     __m256i x = _mm256_sub_epi32(a, b);
     __m256i result = _mm256_min_epu32(x, _mm256_add_epi32(x, p));
-    // __m256i y = _mm256_add_epi32(x, p);
+    // __m256i y = _mm256_add_epi32(x, p); première version avec les mask, plus lente
     // __m256i mask = _mm256_cmpgt_epi32(p, y);
     // __m256i result = _mm256_blendv_epi8(x, y, mask);
     _mm256_storeu_si256((__m256i *) res1, result);
