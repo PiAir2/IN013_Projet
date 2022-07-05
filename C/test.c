@@ -181,7 +181,7 @@ void compare_ffts(Uint racine, Uint ordre_racine, int v) {
 }
 
 void compare_TOUT(Uint racine, Uint ordre_racine, int v) {
-    for (int n = 32768; n <= pow(2, MAX_PUISSANCE); n *= 2) {
+    for (int n = pow(2, MAX_PUISSANCE); n <= pow(2, MAX_PUISSANCE); n = n) {
         Uint racine_principale = mod_pow(racine, ordre_racine/n);
 
         Poly P_fft = gen_poly_fft(n/2-1, n);
@@ -196,13 +196,19 @@ void compare_TOUT(Uint racine, Uint ordre_racine, int v) {
         Poly Q_vect_V2 = copy_poly(Q_fft, 0, n);
 
         temps_initial = clock();
-        Poly R_naif = prod_poly_naif(P_naif, Q_naif);
+        Poly R_naif;
+        if (n <= pow(2, 20)) {
+            R_naif = prod_poly_naif(P_naif, Q_naif);
+        }
         temps_final = clock();
         temps_cpu = ((double) (temps_final - temps_initial)) / CLOCKS_PER_SEC;
         printf("n = %d, temps naif() : %f\n", n, temps_cpu);
 
         temps_initial = clock();
-        Poly R_kara = prod_poly_karatsuba(P_kara, Q_kara);
+        Poly R_kara;
+        if (n <= pow(2, 21)) {
+            R_kara = prod_poly_karatsuba(P_kara, Q_kara);
+        }
         temps_final = clock();
         temps_cpu = ((double) (temps_final - temps_initial)) / CLOCKS_PER_SEC;
         printf("n = %d, temps karatsuba() : %f\n", n, temps_cpu);
@@ -226,8 +232,12 @@ void compare_TOUT(Uint racine, Uint ordre_racine, int v) {
         printf("n = %d, temps vect_FFT_V2() : %f\n", n, temps_cpu);
 
         if (v == 1) {
-            assert(compare_poly(R_naif, R_kara));
-            assert(compare_poly(R_kara, R_fft));
+            if (n <= pow(2, 20)) {
+                assert(compare_poly(R_naif, R_kara));
+            }
+            if (n <= pow(2, 21)) {
+                assert(compare_poly(R_kara, R_fft));
+            }
             assert(compare_poly(R_fft, R_vect));
             assert(compare_poly(R_vect, R_vect_V2));
         }
@@ -236,14 +246,14 @@ void compare_TOUT(Uint racine, Uint ordre_racine, int v) {
 }
 
 int main() {
-    srand(time(NULL));
+    //srand(time(NULL));
 
     printf("Saisir un numéro : \n");
     printf("0 : Tests Naif vs Karatsuba\n");
     printf("1 : Tests des temps moyens de eval_malloc() vs eval()\n");
-    printf("2 : Tests rapides eval() vs vect_eval()\n");
+    printf("2 : Tests eval() vs vect_eval() vs vect_eval_V2()\n");
     printf("3 : Tests validité FFT (compraison résultats de Naif et de FFT)\n");
-    printf("4 : Tests FFT() vs vect_FFT()\n");
+    printf("4 : Tests FFT() vs vect_FFT() vs vect_FFT_V2()\n");
     printf("5 : Tests comparaison de toutes les fonctions\n");
     printf("6 : Tests de la fonction inverse d'un entier inv() sur Z/pZ\n");
 
@@ -282,7 +292,7 @@ int main() {
         }
     }
 
-    if (num == 2) { // TESTS RAPIDES EVAL() VS VECT_EVAL()
+    if (num == 2) { // TESTS EVAL() VS VECT_EVAL() VS VECT_EVAL_V2()
         for (Uint i = 32768; i <= pow(2, MAX_PUISSANCE); i = i*2) {
             Uint deg = i-1;
             Uint racine_principale = mod_pow(racine, ordre_racine/(deg+1));
@@ -293,7 +303,7 @@ int main() {
         }
     }
 
-    if (num == 3) { // TEST VALIDITE FFT
+    if (num == 3) { // TEST VALIDITE FFTs
         Poly P = gen_poly_fft(n/2-1, n);
         Poly P_cpy = copy_poly(P, 0, P.deg);
         Poly vect_P = copy_poly(P, 0, n);
@@ -314,11 +324,11 @@ int main() {
         }
     }
 
-    if (num == 4) { // TESTS FFT VS VECT_FFT
+    if (num == 4) { // TESTS FFT VS VECT_FFT VS VECT_FFT_V2
         compare_ffts(racine, ordre_racine, 0);
     }
 
-    if (num == 5) { // TESTS NAIF VS KARATSUBA VS FFT VS VECT_FFT
+    if (num == 5) { // TESTS NAIF VS KARATSUBA VS FFT VS VECT_FFT VS VECT_FFT_V2
         compare_TOUT(racine, ordre_racine, 0);
     }
 
