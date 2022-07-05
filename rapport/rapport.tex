@@ -132,7 +132,7 @@
 \addcontentsline{toc}{section}{Introduction}
 
 Les polynômes sont un objet mathématique fondamental, qui apparaît de manière omniprésente dans de nombreux problèmes et applications provenant de contextes scientifiques variés. Par conséquent, les calculs sur les polynômes (addition, multiplication, division, PGCD, solutions d’équations...) forment une composante essentielle de solutions algorithmiques et logicielles conçues pour répondre aux besoins de ces contextes d’utilisation. \\
-\indent Les sciences du numérique fournissent un champ naturel d’applications pour ce type de calculs, par exemple concernant la cryptologie et les codes correcteurs d’erreurs. Par ailleurs, ces domaines demandent souvent de résoudre des instances dont la taille est particulièrement importante. Il est donc essentiel de disposer d’implantations haute-performance pour ce type de calculs. Ces implantations doivent se concentrer sur les meilleurs algorithmes connus, et exploiter au mieux les techniques les plus récentes disponibles via les processeurs modernes. \\
+\indent Les sciences du numérique fournissent un champ naturel d’applications pour ce type de calculs, par exemple concernant la cryptologie et les codes correcteurs d’erreurs. Par ailleurs, ces domaines demandent souvent de résoudre des instances dont la taille est particulièrement importante. Il est donc essentiel de disposer d’implantations haute-performance pour ce type de calculs. Ces implantations doivent se concentrer sur les meilleurs algorithmes connus, et exploiter au mieux les techniques les plus récentes disponibles via les processeurs modernes. \footnote{Tiré de l'introduction du sujet numéro 7} \\
 \indent Ces opérations fondamentales sur les polynômes sont en réalité partout et réalisées un nombre incalculable de fois par seconde par nos ordinateurs. La moindre amélioration de performance pour réaliser ces opérations n'en sera donc que démultipliée par leur utilisation continue. \\
 \ \\
 \indent Dans le cadre de l'UE LU2IN013, nous avons réalisé un projet sur l'optimisation de la multiplication de deux polynômes à une variable dont les coefficients appartiennent à $\mathbb{Z}/p\mathbb{Z}$. \\
@@ -154,20 +154,20 @@ De par sa simplicité, cet algorithme nous permet de vérifier les résultats de
 trouvées, nous avons implémenté l'algorithme de Karatsuba. Nous avons appliqué l'algorithme se trouvant sur la source \cite{Karatsuba} tout en mettant les modulos au bon endroit, c'est-à-dire à chaque fois que nous faisons une opération $+$, $-$, $*$ ...
 
 \subsection{Comparaison - Naïf/Karatsuba}
-Afin de pouvoir comparer nos différents algorithmes, nous allons parler dans toute la suite de notre rapport de complexité algorithmique, cette complexité est calculée en fonction du nombre d'opérations dans $\mathbb{Z}/p\mathbb{Z}$ effectuée par nos algorithmes. \\
+Afin de pouvoir comparer nos différents algorithmes, nous allons parler dans toute la suite de notre rapport de complexité algorithmique, cette complexité est calculée en fonction du nombre d'opérations dans $\mathbb{Z}/p\mathbb{Z}$ effectuée par nos algorithmes. De plus, sauf indication contraire, les temps donnés seront en secondes.\\
 \indent La complexité de l'algorithme naïf est en $O(n^2)$ et celui de Karatsuba en ${O(n^{log_2(3)}) \simeq O(n^{1.58})}$. Voici les temps d'exécution (en seconde) de ces deux algorithmes :
 \begin{center}
 \begin{tabular}{||c c c||}
 \hline
 Degré & Naïf & Karatsuba \\
 \hline\hline
-$2^{14}$ & 0.429183 & 0.085549 \\
+$2^{15}$ & 0.429183 & 0.085549 \\
 \hline
-$2^{15}$ & 1.761229 & 0.242966 \\
+$2^{16}$ & 1.761229 & 0.242966 \\
 \hline
-$2^{16}$ & 6.875559 & 0.645986 \\
+$2^{17}$ & 6.875559 & 0.645986 \\
 \hline
-$2^{17}$ & 28.165627 & 2.023236 \\
+$2^{18}$ & 28.165627 & 2.023236 \\
 \hline
 \end{tabular}
 \end{center}
@@ -308,7 +308,7 @@ Nous avons $\overrightarrow{x}[0] = 10$ et $\overrightarrow{x}[1] = 3$, nous dev
 C'est la même logique pour la soustraction $\overrightarrow{x} = \overrightarrow{a}-\overrightarrow{b}$, nous prenons $min\_pos(\overrightarrow{x},\ \overrightarrow{x}+\overrightarrow{p})$. \\ \\
 \indent Pour la multiplication, nous avons utilisé l'algorithme de réduction de Barrett, nous nous sommes inspirés de la source \cite{SIMD} qui montre comment faire cet algorithme avec vectorisation sur des entiers 16 bits.
 
-\subsection{Comparaison de temps des opérations sans et avec AVX2}
+\subsection{Comparaison de temps des opérations avec et sans AVX2}
 
 Dans cette partie, nous allons comparer les temps d'exécution pour les opérations d'addition, de soustraction et de multiplication modulo p sans AVX et avec AVX. Ces fonctions sont dans le fichier $vect.c$ et sont respectivement :
 $vect\_mod\_add()$, $vect\_mod\_sub()$ et $vect\_mod\_mult()$.
@@ -376,7 +376,7 @@ Voici donc les temps obtenus après ces implémentations :
 \begin{center}
 \begin{tabular}{||c c c||}
 \hline
-Degré (+1) & Sans AVX2 & Avec AVX2 \\
+Degré (+1) & DFT Sans AVX2 & DFT Avec AVX2 \\
 \hline\hline
 $2^{20}$ & 0.060076 & 0.056392 \\
 \hline
@@ -390,7 +390,7 @@ $2^{24}$ & 2.470365 & 2.090264 \\
 \hline
 \end{tabular}
 \end{center}
-{\captionof{table}{Temps de la multiplication par FFT sans AVX2 et avec AVX2}}
+{\captionof{table}{Temps de la DFT avec AVX2 et sans AVX2}}
 \ \\
 \indent Nous pouvons voir que le facteur de temps entre nos deux version de la DFT n'est pas énorme, nous allons voir dans la partie 3.5 que nous pouvons faire bien mieux.
 
@@ -413,12 +413,12 @@ C'est-à-dire que $au = 1$ sur $\mathbb{Z}/p\mathbb{Z}$, $u$ est donc bien l'inv
 Enfin, $u$ étant un entier relatif, il peut être négatif, nous devons donc ajouter $p$ dans ce cas. \\
 \indent En sachant tout cela, nous avons pu implémenter l'algorithme grâce au pseudo-code donné sur ce \href{https://www.dcode.fr/identite-bezout}{\underline{\color{blue}site}} \\
 \indent Avec cet algorithme, nous avons alors pu terminer l'étape 4. Par ailleurs, pour l'étape de division par $n$, cela était le même concepte que pour l'étape 3 de la FFT, nous avons donc pu la vectoriser aussi. Ceci conclut donc l'implémentation de la multiplication de polynômes par FFT. \\
-\indent Après avoir vérifié que notre multiplication par la FFT (sans ou avec AVX2) nous donnait des résultats correctes en les confrontant à ceux obtenus avec l'algorithme naïf, nous avons comparé les temps obtenus avec et sans AVX2 :
+\indent Après avoir vérifié que notre multiplication par la FFT (avec et sans AVX2) nous donnait des résultats correctes en les confrontant à ceux obtenus avec l'algorithme naïf, nous avons comparé les temps obtenus avec et sans AVX2 :
 
 \begin{center}
 \begin{tabular}{||c c c||}
 \hline
-Degré (+1) & Sans AVX2 & Avec AVX2 \\
+Degré (+1) & FFT Sans AVX2 & FFT Avec AVX2 \\
 \hline\hline
 $2^{20}$ & 0.158404 & 0.150727 \\
 \hline
@@ -432,21 +432,21 @@ $2^{24}$ & 7.108149 & 5.847869 \\
 \hline
 \end{tabular}
 \end{center}
-{\captionof{table}{Temps de la multiplication par FFT sans AVX2 et avec AVX2}}
+{\captionof{table}{Temps de la multiplication par FFT avec AVX2 et sans AVX2}}
 \ \\
-\indent Comme dit dans la partie 3.4, le facteur de temps n'est pas très grand, cela est dû au temps que prend DFT qui représente la majeure partie du temps d'exécution de la FFT.
+\indent Comme dit dans la partie 3.4, le facteur de temps n'est pas très grand, cela est dû au temps que prend la DFT qui représente la majeure partie du temps d'exécution de la FFT.
 
 \subsection{Améliorations}
 
 Pour finir, nous avons essayé de chercher des librairies faisant aussi la FFT (ou DFT, c'est surtout cet algorithme qui importe) vectorisée avec AVX2 sur $\mathbb{Z}/p\mathbb{Z}$ pour voir quelles sont les meilleures implémentations que nous pouvons avoir à ce jour. Nous sommes notamment tombé sur la librairie NTL (codée en C++) qui propose cela. Après installation de la librairie sur notre ordinateur, nous avons pu exécuter la DFT que propose NTL avec notre nombre premier $p = 754974721$ et avec $n = 2^{24}$. Nous avons tout d'abord exécuté leur DFT sans AVX2, cela donnait un temps d'environ XXXX, puis nous l'avons exécuté avec AVX2 pour un temps d'environ XXXX. Nous voyons donc qu'il est possible de gagner un facteur au moins X grâce à AVX2, alors que dans notre implémentation nous n'avons même pas un facteur 2. \\
-\indent Nous avons donc décidé de faire quelques tests pour voir quelles opérations nous prenaient le plus de temps dans notre DFT, et nous avons vu que c'était l'étape de multiplication qui prenait énormément de temps et plus spécifiquement lorsque nous voulons chercher dans le tableau $racines$ les cases voulues. Après réflexion, nous avons repensé à notre fonction $eval\_malloc()$ où nous faisons un $malloc$ à chaque tour pour créer le tableau $racines\_bis$ où toutes les racines que nous utilisons se suivent. Nous avons donc remis cette mécanique et n'avions donc plus besoin du pas $pas\_rac$. Nous avons alors pu utiliser la fonction de multiplication avec AVX2 sans avoir à chercher des indices spécifiques dans le tableau $racines$. 
+\indent Nous avons donc décidé de faire quelques tests pour voir quelles opérations nous prenaient le plus de temps dans notre DFT, et nous avons vu que c'était l'étape de multiplication qui prenait énormément de temps, et plus spécifiquement lorsque nous voulons chercher dans le tableau $racines$ les cases voulues. Après réflexion, nous avons repensé à notre fonction $eval\_malloc()$ où nous faisons un $malloc$ à chaque tour pour créer le tableau $racines\_bis$ où toutes les racines que nous utilisons se suivent. Nous avons donc remis cette mécanique et n'avions donc plus besoin du pas $pas\_rac$. Nous avons alors pu utiliser la fonction de multiplication avec AVX2 sans avoir à chercher des indices spécifiques dans le tableau $racines$. 
 \newpage
 Après tests, cela nous a fait gagner beaucoup de temps pour des degrés grands, les voici : 
 
 \begin{center}
 \begin{tabular}{||c c c||}
 \hline
-Degré (+1) & Sans AVX2 & Avec AVX2 (Version 2) \\
+Degré (+1) & FFT Sans AVX2 & FFT Avec AVX2 (Version 2) \\
 \hline\hline
 $2^{20}$ & 0.158404 & 0.180472 \\
 \hline
@@ -460,31 +460,43 @@ $2^{24}$ & 7.108149 & 2.939824 \\
 \hline
 \end{tabular}
 \end{center}
-{\captionof{table}{Temps de la multiplication par FFT sans AVX2 et avec AVX2 (Deuxième version)}}
+{\captionof{table}{Temps de la multiplication par FFT avec AVX2 et sans AVX2 (Deuxième version)}}
 \ \\
 \indent Nous voyons que cette fois-ci nous avions plus d'un facteur 2 pour de gros degrés. COMPARER AVEC NTL XXXXXXXXXXX
 
 \section{Temps Finaux}
 
-METTRE TABLEAU FINAL AVEC ALGO NAIF KARATSUBA, FFT ET VECT FFT V2 ?
+Voici un tableau comportant l'ensemble des résultats que nous avons obtenus grâce à nos différents algorithmes.
+Concernant les algorithmes naïf et Karatsuba, nous avons calculé les temps théoriques pour les degrés supérieurs à $2^{18}$. 
 
 \begin{center}
-\begin{tabular}{||c c c||}
+\begin{tabular}{||c c c c c||}
 \hline
-Degré (+1) & Sans AVX2 & Avec AVX2 \\
+Degré (+1) & Naïf & Karatsuba & FFT Sans AVX2 & FFT Avec AVX2 V2 \\
 \hline\hline
-$2^{20}$ & 0.190341 & 0.141107 \\
+$2^{18}$ & 28.17 & 2.02 & X & X \\
 \hline
-$2^{21}$ & 0.400805 & 0.290091 \\
+$2^{19}$ & 2 m & 6.07 & X & X \\
 \hline
-$2^{22}$ & 0.831379 & 0.613087 \\
+$2^{20}$ & 7.5 m & 18.21 & 0.16 & 0.18 \\
 \hline
-$2^{23}$ & 1.789433 & 1.346448 \\
+$2^{21}$ & 30 m & 54.63 & 0.50 & 0.36 \\
 \hline
-$2^{24}$ & 6.257555 & 4.494047 \\
+$2^{22}$ & 2 h & 2.7 m & 1.24 & 0.71 \\
+\hline
+$2^{23}$ & 8 h & 8.1 m & 3.03 & 1.50 \\
+\hline
+$2^{24}$ & 32 h & 24.5 m & 7.11 & 2.94 \\
 \hline
 \end{tabular}
 \end{center}
+{\captionof{table}{Comparaison finale de tous nos algorithmes implémentés\protect\footnotemark}}
+\ \\
+\footnotetext{Temps en seconde sauf m: minutes, h: heures, j: jours}
+
+\indent Nous pouvons constater la très nette amélioration des temps au fur et à mesure de notre avancé dans le projet. \\
+\indent Les temps que nous obtenons peuvent être améliorés, comme nous l'avons vu avec la librairie NTL. Aussi, à l'avenir, de nouvelles méthodes de calcul plus performantes pourraient faire leur apparition ce qui permettrait l'avènement d'algorithmes encore plus efficaces. \\
+Toutefois, cette course à l'optimisation arrivera-t-elle un jour à terme ou bien sera-t-elle dépassée par l'arrivée de nouvelles technologies comme les ordinateurs quantiques ?
 
 \newpage
 
