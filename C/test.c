@@ -181,7 +181,7 @@ void compare_ffts(Uint racine, Uint ordre_racine, int v) {
 }
 
 void compare_TOUT(Uint racine, Uint ordre_racine, int v) {
-    for (int n = pow(2, MAX_PUISSANCE); n <= pow(2, MAX_PUISSANCE); n = n) {
+    for (int n = pow(2, 16); n <= pow(2, MAX_PUISSANCE); n *= 2) {
         Uint racine_principale = mod_pow(racine, ordre_racine/n);
 
         Poly P_fft = gen_poly_fft(n/2-1, n);
