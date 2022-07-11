@@ -105,8 +105,8 @@
 
     \begin{minipage}{0.4\textwidth}
       \begin{flushleft} \large
-        Pierre \textsc{Lin}\\
-        Enzo \textsc{Roaldes}\\
+        \textsc{Pierre Lin}\\
+        \textsc{Enzo Roaldes}\\
         DM-IM 2022 L2\\
       \end{flushleft}
     \end{minipage}
@@ -138,8 +138,8 @@ Les polynômes sont un objet mathématique fondamental, qui apparaît de manièr
 \indent Dans le cadre de l'UE LU2IN013, nous avons réalisé un projet sur l'optimisation de la multiplication de deux polynômes à une variable dont les coefficients appartiennent à $\mathbb{Z}/p\mathbb{Z}$. \\
 \indent Pour ce faire, nous nous intéressons à plusieurs type d'algorithmes pour la multiplication, en particulier : l'algorithme naïf, de Karatsuba et de multiplication par Fast Fourier Transform (FFT).\\
 \indent Nous avons tout d'abord débuté nos expérimentations sur Python avant de nous tourner vers l'utilisation d'un langage de plus bas niveau, nécessaire pour améliorer la vitesse d'exécution d'un programme, le langage C.\\
-\indent Nous exploiterons aussi des techniques de "vectorisation" qui permettent d’effectuer certains calculs en parallèle sur des vecteurs de données.
-
+\indent Nous exploiterons aussi des techniques de "vectorisation" qui permettent d’effectuer certains calculs en parallèle sur des vecteurs de données.\\[3cm]
+Vous pouvez retrouver notre code ici : \href{https://github.com/PiAir2/IN013_Projet}{\textit{\color{blue}{https://github.com/PiAir2/IN013\_Projet}}}
 \newpage
 
 \section{Algorithmes Naïf et de Karatsuba}
@@ -155,11 +155,11 @@ trouvées, nous avons implémenté l'algorithme de Karatsuba. Nous avons appliqu
 
 \subsection{Comparaison - Naïf/Karatsuba}
 Afin de pouvoir comparer nos différents algorithmes, nous allons parler dans toute la suite de notre rapport de complexité algorithmique, cette complexité est calculée en fonction du nombre d'opérations dans $\mathbb{Z}/p\mathbb{Z}$ effectuée par nos algorithmes. De plus, sauf indication contraire, les temps donnés seront en secondes.\\
-\indent La complexité de l'algorithme naïf est en $O(n^2)$ et celui de Karatsuba en ${O(n^{log_2(3)}) \simeq O(n^{1.58})}$. Voici les temps d'exécution (en seconde) de ces deux algorithmes :
+\indent La complexité de l'algorithme naïf est en $O(n^2)$ et celui de Karatsuba en ${O(n^{log_2(3)}) \simeq O(n^{1.58})}$. Voici les temps d'exécution de ces deux algorithmes :
 \begin{center}
 \begin{tabular}{||c c c||}
 \hline
-Degré & Naïf & Karatsuba \\
+Degré de $P$ et $Q$ & Naïf & Karatsuba \\
 \hline\hline
 $2^{15}$ & 0.429183 & 0.085549 \\
 \hline
@@ -173,27 +173,32 @@ $2^{18}$ & 28.165627 & 2.023236 \\
 \end{center}
 {\captionof{table}{Temps de l'algorithme naïf et de l'algorithme de Karatsuba.}}
 \ \\
-\indent Ici, nous observons que lorsque nous multiplions le degré du polynôme par $2$ il y a environ un facteur $2^2 = 4$ pour le temps d'exécution de l'algorithme naïf, contre seulement $2^{1.58} \simeq 3$ pour Karatsuba. Ces temps sont bien cohérents avec les complexités que nous avons cité. \\
+\indent Ici, nous observons que lorsque nous multiplions le degré du polynôme par $2$ il y a environ un facteur $2^2 = 4$ pour le temps d'exécution de l'algorithme naïf, contre seulement $2^{1.58} \simeq 3$ pour Karatsuba. Ces temps sont bien cohérents avec les complexités que nous avons citées. \\
 \indent Par ailleurs, nous n'avons pas vraiment cherché à optimiser l'algorithme de Karatsuba car il existe l'algorithme de multiplication par FFT qui est encore plus rapide.
 
 \newpage
 
 \section{Fast Fourier Transform (FFT)}
 
+\subsection{Multiplication de polynômes par évaluation-interpolation}
+
 Une fois nos deux premières implémentations terminées, nous avons cherché à implémenter un troisième algorithme encore plus performant que celui de Karatsuba pour des polynômes de degrés supérieurs à quelques centaines (selon les implémentations). Le nom de cet algorithme est la FFT. L'algorithme se base sur le théorème suivant :
 
 \newtheorem{Thm1}{Théorème}
 \begin{Thm1}
-Soient $a_1,\dots,a_n$ et $b_1,\dots,b_n$ des nombres réels (avec les $a_i$ deux à deux distincts). Alors il existe un unique polynôme P de degré $< n$ tel que pour tout i dans $\{1,..., n\},\ P(a_i)\ =\ b_i$.
+\label{lagrange}
+\textbf{(Interpolation de Lagrange) : }
+Soient $a_1,\dots,a_n$ et $b_1,\dots,b_n$ dans $\mathbb{Z}/p\mathbb{Z}$  (avec les $a_i$ deux à deux distincts). Alors il existe un unique polynôme P de degré $< n$ tel que : \\
+\indent \indent \indent \indent \indent \indent \indent \indent \indent $\forall i \in \{1,..., n\},\ P(a_i)\ =\ b_i$.
 \end{Thm1}
 
-En effet, l’idée est d’évaluer les polynômes $P$ et $Q$ de degrés $n$ en des points spécifiques. Ces points sont les puissances successives d'une racine principale $n$-ième de l'unité du corps $\mathbb{Z}/p\mathbb{Z}$. Puis, il faut faire le produit de ces évaluations et retrouver l’unique polynôme $R=PQ$ à partir des valeurs du produit. Pour appliquer cet algorithme nous nous sommes servis de la source \cite{AECF}. \\
+En effet, l’idée est d’évaluer les polynômes $P$ et $Q$ en $n$ points spécifiques. Ces $n$ points sont les puissances successives d'une racine principale $n$-ième de l'unité du corps $\mathbb{Z}/p\mathbb{Z}$. Puis, il faut faire le produit de ces évaluations et retrouver l’unique polynôme $R=PQ$ à partir des valeurs du produit. Pour pouvoir retrouver $PQ$ par cette méthode, grâce au \textit{Théorème \ref{lagrange}}, il suffit que $n > deg(PQ)$. \\ Pour appliquer cet algorithme nous nous sommes servis de la source \cite{AECF}. \\
  
 \begin{tcolorbox}[colback=cyan!5!white,
                   colframe=cyan!100!black,
                   title=\textbf{Algorithme de multiplication par FFT}
                  ]
-\textbf{Entrée.} $P$ et $Q$ deux polynômes, n une puissance de 2 tel que $n>deg(PQ)$, et $\omega$ une racine principale $n$-ième de l’unité. \\
+\textbf{Entrée.} $P$ et $Q$ deux polynômes, $n$ une puissance de $2$ avec $n>deg(PQ)$ et $\omega$ une racine principale $n$-ième de l’unité. \\
 \textbf{Sortie.} $R = PQ$ \\
 \textbf{Algorithme.}
 \begin{enumerate}[itemsep=-2ex]
@@ -203,7 +208,10 @@ En effet, l’idée est d’évaluer les polynômes $P$ et $Q$ de degrés $n$ en
 \item\textit{Interpolation}. Nous retrouvons $R$ grâce à $Eval(R)$.
 \end{enumerate}
 \end{tcolorbox}
+\ \\
 Nous pouvons voir que la complexité des étapes de pré-calcul et de produit point à point est en $O(n)$. Notre problème est désormais de voir comment effectuer les étapes d'évaluation et d'interpolation rapidement.
+
+\newpage
 
 \subsection{Évalution d'un polynôme (DFT)}
 \label{DFT}
@@ -211,7 +219,7 @@ L'algorithme d'évaluation d'un polynôme est la deuxième étape de la multipli
 Soient $n = 2^k$, $P(X) = p_n X^n +\dots+p_1 X + p_0$ et $P_0$, $P_1$ les polynômes composés des coefficients de rang respectivement pair et impair de $P$, c'est-à-dire : \\
 $P_0(X) = p_{n} X^{n/2} +\dots+ p_2 X + p_0\ et\ P_1(X) = p_{n-1} X^{(n-2)/2} +\dots+ p_3 X + p_1$. \\
 Nous avons alors que $P(X) = P_0(X^2)+X P_1(X^2)$. \\
-La DFT se base sur cette propriété. En effet, il est clair que, avec une telle décomposition, nous pouvons faire un algorithme récursif où le degré est divisé par deux à chaque occurrence, tout en mettant au carré les points où nous évaluons le polynôme.
+La DFT se base sur cette propriété. En effet, il est clair que, avec une telle décomposition, nous pouvons faire un algorithme récursif où le degré est divisé par deux à chaque occurrence, tout en mettant au carré les points où nous évaluons le polynôme.\\
 
 \begin{tcolorbox}[colback=cyan!5!white,
                   colframe=cyan!100!black,
@@ -229,10 +237,11 @@ La DFT se base sur cette propriété. En effet, il est clair que, avec une telle
 \item\textit{}Renvoyer $R_0(1), R_1(1), R_0(\omega^2), R_1(\omega^2),\dots, R_0((\omega^2)^{k-1}), R_1((\omega^2)^{k-1})$.
 \end{enumerate}
 \end{tcolorbox}
-
+\ \\
 Nous voyons dans la deuxième étape de l'algorithme qu'il est nécessaire de faire une boucle allant de 0 à $\frac{n}{2}-1$ pour les polynômes $R_0$ et $R_1$. Cette opération s'effectue en $O(n)$. De plus, le degré étant divisé par deux à chaque tour de récursion, la complexité de la DFT est donc en $O(n\ log_2(n))$. \\
-\indent Par ailleurs, nous savons démontrer que pour l'étape d'interpolation, il suffit essentiellement de réutiliser l'algorithme de DFT mais en appelant la fonction avec les coefficients $Eval(R)=Eval(PQ)$, et, avec l'inverse des racines principales $n$-ième de l'unité, c'est-à-dire, $\omega^{0},\omega^{-1},\omega^{-2},\dots,\omega^{-(n-1)}$. \\
-Finalement, la complexité de la FFT est $O(n\ log_2(n))$.
+\indent Par ailleurs, nous savons démontrer que pour l'étape d'interpolation, il suffit essentiellement de réutiliser l'algorithme de DFT mais en appelant la fonction avec les coefficients $Eval(R)=Eval(PQ)$, et, avec l'inverse des racines principales $n$-ième de l'unité, c'est-à-dire, $\omega^{0},\omega^{-1},\omega^{-2},\dots,\omega^{-(n-1)}$. Finalement, la complexité de la FFT est en $O(n\ log_2(n))$.
+
+\subsection{Implémentation optimisée de la FFT sur le corps $\mathbb{Z}/p\mathbb{Z}$}
 
 \subsubsection{Utilisation des unsigned int (Uint) et choix de p}
 
@@ -258,19 +267,19 @@ a - b\ \ \ \ \ \ \ \ \ \ \ \ \ \ sinon
 \indent Pour la multiplication, nous avons tout de même utilisé l'opération $\%$ tout en castant la multiplication en $long$ car la multiplication de deux coefficients peut facilement dépasser le nombre maximum des $Uint$. Il existe cependant des algorithmes plus efficaces pour faire le modulo dans la multiplication comme la réduction de Barrett que nous allons utiliser dans la partie \ref{operation mod p AVX2}.
 
 \subsubsection{Optimisation de la DFT}
-Nous avons d'abord fait une première version fonctionnelle mais non optimisée de la DFT (voir la fonction $eval\_malloc()$) avec beaucoup de malloc inutiles. Par exemple, nous avons malloc, à chaque tour de récursion dans la DFT, les tableaux des polynômes $R_0$ et $R_1$ de l'algorithme. Nous avons alors décidé de faire un profilage de cette fonction dont voici le résultat : \\
-\centerline{\includegraphics[scale=0.65]{profiler_eval_malloc}}
+Nous avons d'abord fait une première version fonctionnelle mais non optimisée de la DFT (voir la fonction $eval\_malloc()$) avec beaucoup de malloc inutiles. Par exemple, nous avons malloc, à chaque tour de récursion dans la DFT, les tableaux des polynômes $R_0$ et $R_1$ de l'algorithme. Nous avons alors décidé de faire un profilage de cette fonction dont voici le résultat : \\ \\
+\centerline{\includegraphics[scale=0.7]{profiler_eval_malloc}}
 {\captionof{figure}{Profilage de notre première version de la DFT.}}
 \ \\
-\indent Constatant que les malloc représentent environ 40\% du temps d'exécution de notre fonction, notre priorité a été de réduire le nombre de malloc.  \\
+\indent Constatant que les malloc représentent plus de  40\% du temps d'exécution de notre fonction, notre priorité a été de réduire le nombre de malloc.  \\
 \indent Nous avons d'abord remarqué que nous pouvions enlever le malloc pour le tableau \linebreak $racines\_bis$. En effet, ce tableau sert à stocker les valeurs des cases $0,2,\dots,n$ du tableau $racines$, il était donc possible de se passer du tableau $racines\_bis$ en donnant en paramètre un pas, $pas\_rac$, que nous multiplions par deux à chaque tour. \\
-\indent Concernant le malloc des tableaux de $R_0$ et $R_1$ de tailles $\frac{n}{2}$, nous avons pu les enlever en stockant les coefficients de $R_0$ dans la première moitié du tableau de $P$ (de taille n) et ceux de $R_1$ dans la seconde moitié. Ceci étant grâce au fait que nous n'ayons plus besoin de $P$ aux prochains tours de récursion.
+\indent Concernant le malloc des tableaux de $R_0$ et $R_1$ de tailles $\frac{n}{2}$, nous avons pu les enlever en stockant les coefficients de $R_0$ dans la première moitié du tableau de $P$ (de taille $n$) et ceux de $R_1$ dans la seconde moitié. Ceci étant grâce au fait que nous n'ayons plus besoin de $P$ aux prochains tours de récursion.
 Comme espéré, la nouvelle fonction optimisée (fonction $eval()$) est plus rapide que la première version :
 
 \begin{center}
 \begin{tabular}{||c c c||}
 \hline
-Degré (+1) & $eval\_malloc()$ & $eval()$ \\
+$n$ & $eval\_malloc()$ & $eval()$ \\
 \hline\hline
 $2^{21}$ & 0.769839 & 0.216310 \\
 \hline
@@ -294,8 +303,7 @@ __m256i b = _mm256_set_epi32(1, 0, 1, 0, 1, 0, 1, 0);
 __m256i x = _mm256_add_epi32(a, b);
 // nous avons x == [2, 2, 4, 4, 6, 6, 8, 8]
 \end{lstlisting}}
-
-\indent Toutes les fonctions utilisées peuvent être retrouvées à l'adresse suivante : \href{https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#techs=AVX,AVX2}{\underline{\color{blue}Site Intel}}.
+\noindent Toutes les fonctions utilisées peuvent être retrouvées à l'adresse suivante : \\ \href{https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html\#techs=AVX,AVX2}{\textit{\color{blue}https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html\#techs=AVX,AVX2}}
 
 \subsection{Opérations modulo p avec AVX2}
 \label{operation mod p AVX2}
@@ -305,7 +313,7 @@ Pour des raisons de lisibilité nous allons illustrer cette partie avec des exem
 Par exemple, pour l'addition supposons que : \\
 $p = 7, \ \overrightarrow{a} = [6, 2], \ \space \overrightarrow{b} = [4, 1]$ \ et $ \ \overrightarrow{x} = \overrightarrow{a}+\overrightarrow{b}$ \\
 Nous avons $\overrightarrow{x}[0] = 10$ et $\overrightarrow{x}[1] = 3$, nous devrions donc retirer $p$ pour faire le modulo sur $\overrightarrow{x}[0]$, mais alors nous aurions $\overrightarrow{x}[1] = 3-7 = -4$, ce qui n'est pas le résultat attendu.\\ 
-\indent Pour faire l'addition et la soustraction modulo, il faut savoir qu'AVX2 nous permet de prendre les minimums "positif" sur chaque cases de deux $\_\_m256i$ (tous les nombres négatifs vont être converti en $Uint$), par exemple :\\ $min\_pos([1, 0],\  [0, -10]) = min([1, 0], \ [0,$ UINT\_MAX$-10]) = [0, 0]$ et non $[0, -10]$. \\
+\indent Pour faire l'addition et la soustraction modulo, il faut savoir qu'AVX2 nous permet de prendre le minimum "positif" sur chaque case de deux $\_\_m256i$ (tous les nombres négatifs vont être converti en $Uint$), par exemple :\\ $min\_pos([1, 0],\  [0, -10]) = min([1, 0], \ [0,$ UINT\_MAX$-10]) = [0, 0]$ et non $[0, -10]$. \\
 \indent Pour l'addition, avec $\overrightarrow{x} = \overrightarrow{a}+\overrightarrow{b}$, nous faisons l'opération $min\_pos(\overrightarrow{x},\ \overrightarrow{x}-\overrightarrow{p})$ où \overrightarrow{p} est un $\_\_m256i$ ne contenant que des $p$. Ceci permet bien de faire le modulo car, si \linebreak $\overrightarrow{a}[i] + \overrightarrow{b}[i] = \overrightarrow{x}[i] \geq p$, alors l'appel de la fonction retourne $\overrightarrow{x}[i] - p$. Sinon, nous avons \linebreak $\overrightarrow{a}[i] + \overrightarrow{b}[i] = \overrightarrow{x}[i] < p$, donc $\overrightarrow{x}[i]-p < 0$, et après conversion en $Uint$, $\overrightarrow{x}[i]-p$ sera plus grand que \overrightarrow{x}[i] et donc l'opération retournera \overrightarrow{x}[i]. Ceci correspond bien aux différents cas vus dans la partie \ref{operation mod p}. \\
 C'est la même logique pour la soustraction $\overrightarrow{x} = \overrightarrow{a}-\overrightarrow{b}$, nous prenons $min\_pos(\overrightarrow{x},\ \overrightarrow{x}+\overrightarrow{p})$. \\ \\
 \indent Pour la multiplication, nous avons utilisé l'algorithme de réduction de Barrett, nous nous sommes inspirés de la source \cite{SIMD} qui propose une implémentation de cet algorithme avec vectorisation sur des entiers 16 bits.
@@ -329,7 +337,7 @@ Multiplication & 0.015053 & 0.007497 \\
 \hline
 \end{tabular}
 \end{center}
-{\captionof{table}{Temps des opérations d'addition, soustraction de multiplication sans AVX2 et avec AVX2.}}
+{\captionof{table}{Temps des opérations d'addition, soustraction et multiplication sans AVX2 et avec AVX2.}}
 \ \\
 \indent Ici, nous gagnons un facteur environ 2 grâce à AVX2. Il ne nous reste plus qu'à implémenter ces fonctions dans la DFT.
 
@@ -378,7 +386,7 @@ Voici donc les temps obtenus après ces implémentations :
 \begin{center}
 \begin{tabular}{||c c c||}
 \hline
-Degré (+1) & DFT Sans AVX2 & DFT Avec AVX2 \\
+$n$ & DFT Sans AVX2 & DFT Avec AVX2 \\
 \hline\hline
 $2^{20}$ & 0.060076 & 0.056392 \\
 \hline
@@ -392,9 +400,9 @@ $2^{24}$ & 2.470365 & 2.090264 \\
 \hline
 \end{tabular}
 \end{center}
-{\captionof{table}{Temps de la DFT avec AVX2 et sans AVX2.}}
+{\captionof{table}{Temps de la DFT sans AVX2 et avec AVX2. \label{tab4}}}
 \ \\
-\indent Nous pouvons voir que le facteur de temps entre nos deux version de la DFT n'est pas énorme, nous allons voir dans la partie \ref{NTL} que nous pouvons faire bien mieux.
+\indent Nous pouvons voir que le facteur de temps entre nos versions de la DFT n'est pas énorme, nous allons voir dans la partie \ref{NTL} que nous pouvons faire bien mieux.
 
 \subsection{Multiplication des polynômes par FFT}
 L'étape 2 de l'algorithme de multiplication de deux polynômes par FFT étant terminée, nous allons devoir implémenter les étapes 3 et 4 de cet algorithme. \\
@@ -406,21 +414,21 @@ L'étape 2 de l'algorithme de multiplication de deux polynômes par FFT étant t
   \item Appliquer la DFT à $Eval(R)$ avec ces inverses.
   \item Diviser les coefficients obtenus par la DFT par $n$ (c'est-à-dire multiplier par l'inverse de $n$ sur $\mathbb{Z}/p\mathbb{Z}$).
 \end{itemize}}
-\indent Ces étapes demandent de calculer l'inverse d'un nombre sur $\mathbb{Z}/p\mathbb{Z}$. Nous avons donc créé un algorithme inversant un nombre $a$ sur le corps $\mathbb{Z}/p\mathbb{Z}$ en résolvant l'équation $au + pv = 1$ (nous cherchons à trouver $u$ et $v$), cet algorithme est en fait l'algorithme d'Euclide étendu.
+\indent Ces étapes demandent de calculer l'inverse d'un nombre sur $\mathbb{Z}/p\mathbb{Z}$. Nous avons donc implémenté un algorithme inversant un nombre $a$ sur le corps $\mathbb{Z}/p\mathbb{Z}$ en résolvant l'équation $au + pv = 1$ (nous cherchons à trouver $u$ et $v$), cet algorithme est en fait l'algorithme d'Euclide étendu.
 \\
 Premièrement, $u$ et $v$ existent, en effet, $p$ étant un nombre premier, nous pouvons en déduire que $a$ et $p$ sont premier entre eux. Donc, par le théorème de Bézout, il existe deux entiers relatifs $u$ et $v$ tels que $au + pv = 1$. \\
 De plus, $u$ est l'inverse de $a$ sur $\mathbb{Z}/p\mathbb{Z}$. En effet, supposons que $au + pv = 1$, comme nous travaillons sur $\mathbb{Z}/p\mathbb{Z}$, nous avons : \\
-$au+pv = (au+pv)\%p = au\%p + pv\%p = au\%p = 1$. \\ 
+$au+pv = (au+pv)\%p = (au)\%p + (pv)\%p = (au)\%p = 1$. \\ 
 C'est-à-dire que $au = 1$ sur $\mathbb{Z}/p\mathbb{Z}$, $u$ est donc bien l'inverse de $a$ par définition de l'inverse. \\
 Enfin, $u$ étant un entier relatif, il peut être négatif, nous devons donc ajouter $p$ dans ce cas. \\
 \indent En sachant tout cela, nous avons pu implémenter l'algorithme grâce au pseudo-code donné sur ce \href{https://www.dcode.fr/identite-bezout}{\underline{\color{blue}site}}. \\
-\indent Avec cet algorithme, nous avons alors pu terminer l'étape 4. Par ailleurs, pour l'étape de division par $n$, cela était le même concepte que pour l'étape 3 de la FFT, nous avons donc pu la vectoriser aussi. Ceci conclut donc l'implémentation de la multiplication de polynômes par FFT. \\
-\indent Après avoir vérifié que notre multiplication par la FFT (avec et sans AVX2) nous donnait des résultats correctes en les confrontant à ceux obtenus avec l'algorithme naïf, nous avons comparé les temps obtenus avec et sans AVX2 :
+\indent Avec cet algorithme, nous avons alors pu terminer l'étape 4. Par ailleurs, pour l'étape de division par $n$, cela était le même concept que pour l'étape 3 de la FFT, nous avons donc pu la vectoriser aussi. Ceci conclut donc l'implémentation de la multiplication de polynômes par FFT. \\
+\indent Après avoir vérifié que notre multiplication par la FFT (avec et sans AVX2) nous donnait des résultats corrects en les confrontant à ceux obtenus avec l'algorithme naïf, nous avons comparé les temps obtenus avec et sans AVX2 :
 
 \begin{center}
 \begin{tabular}{||c c c||}
 \hline
-Degré (+1) & FFT Sans AVX2 & FFT Avec AVX2 \\
+$n$ & FFT Sans AVX2 & FFT Avec AVX2 \\
 \hline\hline
 $2^{20}$ & 0.158404 & 0.150727 \\
 \hline
@@ -434,21 +442,23 @@ $2^{24}$ & 7.108149 & 5.847869 \\
 \hline
 \end{tabular}
 \end{center}
-{\captionof{table}{Temps de la multiplication par FFT avec AVX2 et sans AVX2.}}
+{\captionof{table}{Temps de la multiplication par FFT sans AVX2 et avec AVX2. \label{tab5}}}
 \ \\
-\indent Comme dit dans la partie 3.4, le facteur de temps n'est pas très grand, cela est dû au temps que prend la DFT qui représente la majeure partie du temps d'exécution de la FFT.
+\indent Ici, la DFT représente la majeure partie du temps d'exécution de la FFT. 
+En effet, dans l'algorithme de FFT nous devons exécuter trois DFT, et nous observons un facteur 3 entre les temps des tableaux \ref{tab4} et \ref{tab5}. C'est pourquoi, tout comme dans le tableau \ref{tab4}, le facteur de temps observé dans le tableau \ref{tab5} n'est pas très élevé. \\
+Cela montre bien que les étapes en $O(n)$ de la FFT sont négligeables par rapport à celles en $O(n\ log_2(n))$.
 
 \subsection{Améliorations}
 \label{NTL}
-Pour finir, nous avons essayé de chercher des librairies faisant aussi la FFT (ou DFT, c'est surtout cet algorithme qui importe) vectorisée avec AVX2 sur $\mathbb{Z}/p\mathbb{Z}$ pour voir quelles sont les meilleures implémentations que nous pouvons avoir à ce jour. Nous sommes notamment tombé sur la librairie NTL (codée en C++) qui propose cela. Après installation de la librairie sur notre ordinateur, nous avons pu exécuter la DFT que propose NTL avec notre nombre premier $p = 754974721$ et avec $n = 2^{24}$. Nous avons tout d'abord exécuté leur DFT sans AVX2, cela donnait un temps d'environ XXXX, puis nous l'avons exécuté avec AVX2 pour un temps d'environ XXXX. Nous voyons donc qu'il est possible de gagner un facteur au moins X grâce à AVX2, alors que dans notre implémentation nous n'avons même pas un facteur 2. \\
-\indent Nous avons donc décidé de faire quelques tests pour voir quelles opérations nous prenaient le plus de temps dans notre DFT, et nous avons vu que c'était l'étape de multiplication qui prenait énormément de temps, et plus spécifiquement lorsque nous voulons chercher dans le tableau $racines$ les cases voulues. Après réflexion, nous avons repensé à notre fonction $eval\_malloc()$ où nous faisons un $malloc$ à chaque tour pour créer le tableau $racines\_bis$ où toutes les racines que nous utilisons se suivent. Nous avons donc remis cette mécanique et n'avions donc plus besoin du pas $pas\_rac$. Nous avons alors pu utiliser la fonction de multiplication avec AVX2 sans avoir à chercher des indices spécifiques dans le tableau $racines$. 
+
+Afin d'améliorer les performances de notre FFT, nous avons décidé de faire quelques tests pour voir quelles opérations nous prenaient le plus de temps dans notre DFT. Nous avons vu que c'était l'étape de multiplication qui prenait énormément de temps, et plus spécifiquement lorsque nous voulons chercher dans le tableau $racines$ les cases voulues. Après réflexion, nous avons repensé à notre fonction $eval\_malloc()$ où nous faisons un $malloc$ à chaque tour pour créer le tableau $racines\_bis$ où toutes les racines que nous utilisons se suivent. Nous avons remis cette mécanique et nous nous sommes débarrassé du pas, $pas\_rac$. Nous avons alors pu utiliser la fonction de multiplication avec AVX2 sans avoir à chercher des indices spécifiques dans le tableau $racines$. 
 \newpage
 Après tests, cela nous a fait gagner beaucoup de temps pour des degrés grands, les voici : 
 
 \begin{center}
 \begin{tabular}{||c c c||}
 \hline
-Degré (+1) & FFT Sans AVX2 & FFT Avec AVX2 (Version 2) \\
+$n$ & FFT Sans AVX2 & FFT Avec AVX2 (Version 2) \\
 \hline\hline
 $2^{20}$ & 0.158404 & 0.180472\protect\footnotemark \\
 \hline
@@ -462,28 +472,47 @@ $2^{24}$ & 7.108149 & 2.939824 \\
 \hline
 \end{tabular}
 \end{center}
-{\captionof{table}{Temps de la multiplication par FFT avec AVX2 et sans AVX2 (Deuxième version).}}
+{\captionof{table}{Temps de la multiplication par FFT sans AVX2 et avec AVX2 (Deuxième version).}}
 \ \\
-
 \footnotetext{Pour les degrés inférieurs à $2^{20}$ les performances de la deuxième version sont moins bonnes. Il serait donc intéressant de distinguer, selon le degré, quelle version utiliser.}
-
-\indent Nous voyons que cette fois-ci nous avions plus d'un facteur 2 pour de gros degrés. COMPARER AVEC NTL XXXXXXXXXXX
+\indent Pour finir, nous avons essayé de chercher des librairies faisant aussi la FFT (ou DFT, c'est surtout cet algorithme qui importe) vectorisée avec AVX2 sur $\mathbb{Z}/p\mathbb{Z}$ pour voir quelles sont les meilleures implémentations que nous pouvons avoir à ce jour. La première page que nous avons trouvée était la librairie NTL (codée en C++) qui propose cela : \href{https://libntl.org/}{\textit{\color{blue}https://libntl.org/}}.\\
+\indent Après installation de la librairie sur notre ordinateur, nous avons pu exécuter la DFT que propose NTL pour plusieurs degrés. Pour cela, nous avons pris un nombre premier de taille $27$ bits (le notre n'étant pas disponible) et avons exécuté leur DFT pour les degrés disponibles. Voici un tableau comparant directement nos temps et ceux de NTL :
+\begin{center}
+\begin{tabular}{||c c c c c||}
+\hline
+$n$ & No AVX2 (NTL) & No AVX2 & AVX2 (NTL) & AVX2\footnotemark \\
+\hline\hline
+$2^{18}$ & 0.00297 & 0.01017 & 0.00182 & 0.00944 \\
+\hline
+$2^{20}$ & 0.01517 & 0.06008 & 0.01113 & 0.06168 \\
+\hline
+$2^{22}$ & 0.08613 & 0.38058 & 0.07253 & 0.21169 \\
+\hline
+\end{tabular}
+\end{center}
+{\captionof{table}{Comparaison de nos DFT à celles de NTL.}}
+\ \\
+\footnotetext{Pour les temps AVX2, nous avons pris le meilleur temps entre notre première et deuxième version de la DFT.}
+\indent Nous pouvons dans un premier temps remarquer que sans AVX2 il y a un facteur croissant entre nos deux DFT (allant de $3$ à $5$). Notre DFT est donc encore largement optimisable mais il nous faudrait beaucoup plus de compétences pour arriver aux performances que propose NTL. \\ 
+NTL est, par ailleurs, la bibliothèque de référence pour la DFT, bénéficiant depuis des années de l'expertise de pointe de la recherche à ce sujet. C'est pourquoi le facteur est si important. \\
+\indent Dans un second temps, nous pouvons remarquer que plus le degré augmente, plus le temps gagné par NTL avec AVX2 diminue. Il est possible que cela soit dû au fait que leur DFT sans AVX2 est très optimisée, ce qui rend la vectorisation ardue.\\ 
+\indent En revanche, nous observons le comportement inverse pour nos DFT. Cela est dû au fait que nos opérations étaient plus simple à vectoriser. C'est pourquoi, avec AVX2, nous obtenons un facteur décroissant (allant de 5 à 3).
 
 \newpage
 
 \section{Temps Finaux}
 
 Voici un tableau comportant l'ensemble des résultats que nous avons obtenus grâce à nos différents algorithmes.
-Concernant les algorithmes naïf et Karatsuba, nous avons calculé les temps théoriques pour les degrés supérieurs à $2^{18}$. 
+Concernant les algorithmes naïf et de Karatsuba, nous avons calculé les temps théoriques pour les degrés supérieurs à $2^{18}$. 
 
 \begin{center}
 \begin{tabular}{||c c c c c||}
 \hline
-Degré (+1) & Naïf & Karatsuba & FFT Sans AVX2 & FFT Avec AVX2 V2 \\
+$n$ & Naïf & Karatsuba & FFT Sans AVX2 & FFT Avec AVX2 V2 \\
 \hline\hline
-$2^{18}$ & 28.17 & 2.02 & X & X \\
+$2^{18}$ & 28.17 & 2.02 & 0.037 & 0.045 \\
 \hline
-$2^{19}$ & 2 m & 6.07 & X & X \\
+$2^{19}$ & 2 m & 6.07 & 0.085 & 0.094 \\
 \hline
 $2^{20}$ & 7.5 m & 18.21 & 0.16 & 0.18 \\
 \hline
@@ -499,9 +528,8 @@ $2^{24}$ & 32 h & 24.5 m & 7.11 & 2.94 \\
 \end{center}
 {\captionof{table}{Comparaison finale de tous nos algorithmes implémentés\protect\footnotemark.}}
 \ \\
-\footnotetext{Temps en seconde sauf m: minutes, h: heures, j: jours.}
-
-\indent Nous pouvons constater la très nette amélioration des temps au fur et à mesure de notre avancé dans le projet. \\ \\
+\footnotetext{Temps en seconde sauf m: minutes et h: heures.}
+\indent Nous pouvons constater que la multiplication de deux polynômes par FFT est largement plus rapide qu'avec les algorithmes naïf et de Karatsuba. Cependant, il faut faire attention au fait que la FFT sur $\mathbb{Z}/p\mathbb{Z}$ n'est pas utilisable pour des degrés très grands (selon $p$), donc cet algorithme a aussi ses limites.\\ \\
 \indent Les temps que nous obtenons peuvent être améliorés, comme nous l'avons vu avec la librairie NTL. Aussi, à l'avenir, de nouvelles méthodes de calcul plus performantes pourraient faire leur apparition, ce qui permettrait l'avènement d'algorithmes encore plus efficaces. \\
 Toutefois, cette course à l'optimisation arrivera-t-elle un jour à terme ou bien sera-t-elle dépassée par l'arrivée de nouvelles technologies comme les ordinateurs quantiques ?
 

@@ -246,7 +246,7 @@ void compare_TOUT(Uint racine, Uint ordre_racine, int v) {
 }
 
 int main() {
-    //srand(time(NULL));
+    srand(time(NULL));
 
     printf("Saisir un numéro : \n");
     printf("0 : Tests Naif vs Karatsuba\n");
